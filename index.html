@@ -77,8 +77,8 @@
 </div>
 
 <script>
-    // ⚠️ วาง URL ของ Google Web App ที่ได้จากขั้นตอนที่ 1 ที่นี่
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFNZQ-7CSpUFqWkNojU-lzoTKx78YGaE76czYdnEHfmLL6FILolj01s1ClGeF32HUerw/exec"
+    // ✅ ใส่ URL จริงของคุณและปรับตัวเช็คเงื่อนไขเรียบร้อยแล้วครับ
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFNZQ-7CSpUFqWkNojU-lzoTKx78YGaE76czYdnEHfmLL6FILolj01s1ClGeF32HUerw/exec";
 
     function switchTab(tabId) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
@@ -100,7 +100,9 @@
         const btn = document.getElementById('btnSubmit');
 
         if(!date || !qty) { alert("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
-        if(GOOGLE_SCRIPT_URL.includes('ใส่_URL')) { alert("กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ"); return; }
+        
+        // แก้ไขเงื่อนไขการดักเตือนใหม่
+        if(!GOOGLE_SCRIPT_URL.includes('script.google.com')) { alert("กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ"); return; }
 
         btn.disabled = true;
         msg.style.display = 'block';
@@ -131,7 +133,8 @@
         const selectedMonth = document.getElementById('filterMonth').value;
         const resultArea = document.getElementById('dashboardResult');
         
-        if(GOOGLE_SCRIPT_URL.includes('ใส่_URL')) {
+        // แก้ไขเงื่อนไขการดักเตือนใหม่
+        if(!GOOGLE_SCRIPT_URL.includes('script.google.com')) {
             resultArea.innerHTML = '<p style="text-align: center; color: red;">⚠️ กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ</p>';
             return;
         }
