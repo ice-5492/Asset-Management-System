@@ -77,7 +77,7 @@
 </div>
 
 <script>
-    // ✅ ใส่ URL จริงของคุณและปรับตัวเช็คเงื่อนไขเรียบร้อยแล้วครับ
+    // URL สำหรับเชื่อมต่อฐานข้อมูล Google Sheets เรียบร้อยแล้วครับ
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFNZQ-7CSpUFqWkNojU-lzoTKx78YGaE76czYdnEHfmLL6FILolj01s1ClGeF32HUerw/exec";
 
     function switchTab(tabId) {
@@ -100,9 +100,6 @@
         const btn = document.getElementById('btnSubmit');
 
         if(!date || !qty) { alert("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
-        
-        // แก้ไขเงื่อนไขการดักเตือนใหม่
-        if(!GOOGLE_SCRIPT_URL.includes('script.google.com')) { alert("กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ"); return; }
 
         btn.disabled = true;
         msg.style.display = 'block';
@@ -132,12 +129,6 @@
     function loadDashboardOnline() {
         const selectedMonth = document.getElementById('filterMonth').value;
         const resultArea = document.getElementById('dashboardResult');
-        
-        // แก้ไขเงื่อนไขการดักเตือนใหม่
-        if(!GOOGLE_SCRIPT_URL.includes('script.google.com')) {
-            resultArea.innerHTML = '<p style="text-align: center; color: red;">⚠️ กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ</p>';
-            return;
-        }
 
         resultArea.innerHTML = '<p class="loading">🔄 กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</p>';
 
@@ -171,15 +162,3 @@
                         <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${percent}%"></div></div>
                         <div class="stat-value">${val.toLocaleString()}</div>
                     </div>
-                `;
-            });
-            resultArea.innerHTML = html;
-        })
-        .catch(err => {
-            resultArea.innerHTML = '<p style="text-align: center; color: red;">❌ ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้</p>';
-        });
-    }
-</script>
-
-</body>
-</html>
