@@ -25,6 +25,9 @@
         .chart-bar-bg { flex: 0 0 150px; background: #ddd; height: 10px; border-radius: 5px; margin: 0 15px; overflow: hidden; }
         .chart-bar-fill { background: #11CAA0; height: 100%; }
         .loading { text-align: center; color: #666; font-style: italic; }
+        .filter-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-toggle { flex: 1; padding: 10px; background: #e2e8f0; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-toggle.active { background: #005088; color: white; }
     </style>
 </head>
 <body>
@@ -66,10 +69,25 @@
 
     <div id="dashboard" class="content">
         <h2>Dashboard สรุปยอดรวมออนไลน์</h2>
+        
         <div class="form-group">
-            <label>🔍 เลือกเดือนที่ต้องการสรุปยอด:</label>
+            <label>🔍 รูปแบบการดูสรุปยอด:</label>
+            <div class="filter-toggle">
+                <button id="toggleMonth" class="btn-toggle active" onclick="setFilterType('month')">รายเดือน</button>
+                <button id="toggleDate" class="btn-toggle" onclick="setFilterType('date')">รายวัน (ปฏิทิน)</button>
+            </div>
+        </div>
+
+        <div class="form-group" id="monthFilterContainer">
+            <label>📅 เลือกเดือนที่ต้องการสรุปยอด:</label>
             <input type="month" id="filterMonth" onchange="loadDashboardOnline()">
         </div>
+
+        <div class="form-group" id="dateFilterContainer" style="display: none;">
+            <label>📅 เลือกวันที่ที่ต้องการสรุปยอด:</label>
+            <input type="date" id="filterDate" onchange="loadDashboardOnline()">
+        </div>
+
         <div id="dashboardResult" class="dashboard-card">
             <p style="text-align: center; color: #888;">กำลังโหลดฐานข้อมูลกลาง...</p>
         </div>
@@ -77,8 +95,8 @@
 </div>
 
 <script>
-    // ฝังลิงก์ตัวจริงล่าสุดของคุณเรียบร้อยครับ
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxa2HKHplA_hy3MQNQiVfhf5KZ8d1Bq79XQOJxVzpp5p1fJdEoPXuiN80tNQO1TwzxE/exec";
+    let currentFilterType = 'month';
 
     function switchTab(tabId) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
@@ -92,6 +110,18 @@
 
     document.getElementById('inputDate').valueAsDate = new Date();
     document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('filterDate').valueAsDate = new Date();
+
+    function setFilterType(type) {
+        currentFilterType = type;
+        document.getElementById('toggleMonth').classList.toggle('active', type === 'month');
+        document.getElementById('toggleDate').classList.toggle('active', type === 'date');
+        
+        document.getElementById('monthFilterContainer').style.display = type === 'month' ? 'block' : 'none';
+        document.getElementById('dateFilterContainer').style.display = type === 'date' ? 'block' : 'none';
+        
+        loadDashboardOnline();
+    }
 
     function saveDataOnline() {
         const date = document.getElementById('inputDate').value;
@@ -128,6 +158,7 @@
 
     function loadDashboardOnline() {
         const selectedMonth = document.getElementById('filterMonth').value;
+        const selectedDate = document.getElementById('filterDate').value;
         const resultArea = document.getElementById('dashboardResult');
 
         resultArea.innerHTML = '<p class="loading">🔄 กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</p>';
@@ -135,10 +166,25 @@
         fetch(GOOGLE_SCRIPT_URL)
         .then(res => res.json())
         .then(serverData => {
-            const filtered = serverData.filter(d => d.date && d.date.startsWith(selectedMonth));
+            let filtered = [];
+            let displayTitle = "";
+
+            if (currentFilterType === 'month') {
+                filtered = serverData.filter(d => d.date && d.date.startsWith(selectedMonth));
+                displayTitle = `ประจำเดือน ${selectedMonth}`;
+            } else {
+                filtered = serverData.filter(d => {
+                    if(!d.date) return false;
+                    const dDate = new Date(d.date).toISOString().slice(0, 10);
+                    return dDate === selectedDate;
+                });
+                // แปลงฟอร์แมตวันที่ให้อ่านง่ายขึ้น
+                const dateObj = new Date(selectedDate);
+                displayTitle = `ประจำวันที่ ${dateObj.toLocaleDateString('th-TH', {day: 'numeric', month: 'long', year: 'numeric'})}`;
+            }
             
             if(filtered.length === 0) {
-                resultArea.innerHTML = `<p style="text-align: center; color: #888;">❌ ไม่มีข้อมูลการใช้ของในเดือน ${selectedMonth}</p>`;
+                resultArea.innerHTML = `<p style="text-align: center; color: #888;">❌ ไม่มีข้อมูลการใช้ของ${displayTitle}</p>`;
                 return;
             }
 
@@ -150,7 +196,7 @@
                 grandTotal += q;
             });
 
-            let html = `<h3 style="text-align:center;">ยอดรวมออนไลน์เดือน ${selectedMonth}: <span style="color:#005088">${grandTotal.toLocaleString()} เครื่อง</span></h3>`;
+            let html = `<h3 style="text-align:center;">ยอดรวมออนไลน์${displayTitle}: <span style="color:#005088">${grandTotal.toLocaleString()} เครื่อง</span></h3>`;
             const sortedItems = Object.entries(summary).sort((a, b) => b[1] - a[1]);
 
             sortedItems.forEach(([name, val]) => {
