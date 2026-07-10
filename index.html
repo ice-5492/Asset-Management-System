@@ -45,7 +45,7 @@
             <label>📦 เลือกรายการวัสดุ (10 รายการ):</label>
             <select id="inputItem">
                 <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN</option>
-                <option>สายวัดความเข้มข้น of ออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
+                <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
                 <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
                 <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
                 <option>สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
@@ -77,15 +77,15 @@
 </div>
 
 <script>
-    // แก้ไขใส่เครื่องหมายอัญประกาศครอบ URL ให้สมบูรณ์เรียบร้อยแล้วครับ
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFNZQ-7CSpUFqWkNojU-lzoTKx78YGaE76czYdnEHfmLL6FILolj01s1ClGeF32HUerw/exec";
+    // ฝัง URL ของคุณพร้อมล้างระบบดักป๊อปอัปเตือนออกหมดจดแล้วครับ
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx3NCkxMF_tp6_k95sHd950EOiYZDjCtNfT7ut7Pivc1YjVTnPx7_Zz1nH6m5-p2croGg/exec";
 
     function switchTab(tabId) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        if (event && event.currentTarget) {
-            event.currentTarget.classList.add('active');
+        if (window.event && window.event.currentTarget) {
+            window.event.currentTarget.classList.add('active');
         }
         if(tabId === 'dashboard') loadDashboardOnline();
     }
@@ -125,6 +125,8 @@
             btn.disabled = false;
         });
     }
+
+    function function _0x(ลองลบแจ้งเตือนเก่าแล้วดึงค่าตรงๆ) {}
 
     function loadDashboardOnline() {
         const selectedMonth = document.getElementById('filterMonth').value;
