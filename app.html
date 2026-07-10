@@ -49,7 +49,7 @@
             <select id="inputItem">
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
+                <option value="สายวัดความเข้มข้นของออกิจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN</option>
@@ -170,16 +170,50 @@
             let displayTitle = "";
 
             if (currentFilterType === 'month') {
-                filtered = serverData.filter(d => d.date && d.date.startsWith(selectedMonth));
+                filtered = serverData.filter(d => {
+                    if(!d.date) return false;
+                    let rowRaw = String(d.date).trim();
+                    if(rowRaw.includes('T')) rowRaw = rowRaw.split('T')[0];
+                    return rowRaw.startsWith(selectedMonth);
+                });
                 displayTitle = `ประจำเดือน ${selectedMonth}`;
             } else {
                 filtered = serverData.filter(d => {
                     if(!d.date) return false;
-                    const dDate = new Date(d.date).toISOString().slice(0, 10);
-                    return dDate === selectedDate;
+                    let rowRaw = String(d.date).trim();
+                    if(rowRaw.includes('T')) rowRaw = rowRaw.split('T')[0];
+                    if(rowRaw.includes(' ')) rowRaw = rowRaw.split(' ')[0];
+                    
+                    // ป้องกันความเพี้ยนของฟอร์แมตปฏิทินไทย-สากล ด้วยการแกะเช็คตัวเลข
+                    const targetParts = selectedDate.split('-'); // [YYYY, MM, DD]
+                    
+                    if(rowRaw.includes('-')) {
+                        const rowParts = rowRaw.split('-');
+                        if(rowParts.length >= 3) {
+                            return parseInt(rowParts[0]) === parseInt(targetParts[0]) &&
+                                   parseInt(rowParts[1]) === parseInt(targetParts[1]) &&
+                                   parseInt(rowParts[2]) === parseInt(targetParts[2]);
+                        }
+                    } else if(rowRaw.includes('/')) {
+                        const rowParts = rowRaw.split('/');
+                        if(rowParts.length >= 3) {
+                            // เช็คได้ทั้งกรณีระบบเก็บแบบ DD/MM/YYYY หรือ YYYY/MM/DD
+                            if(rowParts[0].length === 4) {
+                                return parseInt(rowParts[0]) === parseInt(targetParts[0]) &&
+                                       parseInt(rowParts[1]) === parseInt(targetParts[1]) &&
+                                       parseInt(rowParts[2]) === parseInt(targetParts[2]);
+                            } else {
+                                return parseInt(rowParts[2]) === parseInt(targetParts[0]) &&
+                                       parseInt(rowParts[1]) === parseInt(targetParts[1]) &&
+                                       parseInt(rowParts[0]) === parseInt(targetParts[2]);
+                            }
+                        }
+                    }
+                    return rowRaw === selectedDate;
                 });
-                const dateObj = new Date(selectedDate);
-                displayTitle = `ประจำวันที่ ${dateObj.toLocaleDateString('th-TH', {day: 'numeric', month: 'long', year: 'numeric'})}`;
+                
+                const dateParts = selectedDate.split('-');
+                displayTitle = `ประจำวันที่ ${parseInt(dateParts[2])}/${parseInt(dateParts[1])}/${dateParts[0]}`;
             }
             
             if(filtered.length === 0) {
@@ -211,6 +245,7 @@
             resultArea.innerHTML = html;
         })
         .catch(err => {
+            console.error(err);
             resultArea.innerHTML = '<p style="text-align: center; color: red;">❌ ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้</p>';
         });
     }
