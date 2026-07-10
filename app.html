@@ -6,7 +6,7 @@
     <title>ระบบจัดการวัสดุแพทย์ออนไลน์ & Dashboard</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .app-container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .app-container { max-width: 950px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; }
         .tabs { display: flex; background: #005088; }
         .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s; font-weight: bold; }
         .tab-btn.active { background: #11CAA0; color: #000; }
@@ -16,6 +16,8 @@
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .date-range-group { display: flex; gap: 15px; }
+        .date-range-group div { flex: 1; }
         .btn-main { width: 100%; padding: 15px; background: #005088; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
         .btn-main:hover { background: #003d66; }
         .dashboard-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
@@ -28,6 +30,7 @@
         .filter-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
         .btn-toggle { flex: 1; padding: 10px; background: #e2e8f0; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-toggle.active { background: #005088; color: white; }
+        .sub-section { margin-top: 25px; padding-top: 15px; border-top: 2px dashed #e2e8f0; }
     </style>
 </head>
 <body>
@@ -41,6 +44,19 @@
     <div id="record" class="content active">
         <h2>บันทึกความต้องการวัสดุ</h2>
         <div class="form-group">
+            <label>👤 เลือกชื่อผู้ต้องการสินค้า / ผู้บันทึก:</label>
+            <select id="inputName">
+                <option value="" disabled selected>--- กรุณาเลือกชื่อของคุณ ---</option>
+                <option value="นายไกรพล ภักดีภูวนารถ">1. นายไกรพล ภักดีภูวนารถ</option>
+                <option value="นายณัฐฎ์วัฒน์ นิ่มพานิชย์">2. นายณัฐฎ์วัฒน์ นิ่มพานิชย์</option>
+                <option value="นายพิวา ราชเพียแก้ว">3. นายพิวา ราชเพียแก้ว</option>
+                <option value="นายยศพนธ์ คันธนู">4. นายยศพนธ์ คันธนู</option>
+                <option value="นายปัญญา สมตระกูล">5. นายปัญญา สมตระกูล</option>
+                <option value="นายภาณุวิชญ์ หนูเทศ">6. นายภาณุวิชญ์ หนูเทศ</option>
+                <option value="นายธีธัช เล็กอุทัย">7. นายธีธัช เล็กอุทัย</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label>📅 เลือกวันที่ต้องการใช้ (ปฏิทิน):</label>
             <input type="date" id="inputDate">
         </div>
@@ -49,7 +65,7 @@
             <select id="inputItem">
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
-                <option value="สายวัดความเข้มข้นของออกิจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN</option>
@@ -74,7 +90,7 @@
             <label>🔍 รูปแบบการดูสรุปยอด:</label>
             <div class="filter-toggle">
                 <button id="toggleMonth" class="btn-toggle active" onclick="setFilterType('month')">รายเดือน</button>
-                <button id="toggleDate" class="btn-toggle" onclick="setFilterType('date')">รายวัน (ปฏิทิน)</button>
+                <button id="toggleDate" class="btn-toggle" onclick="setFilterType('date')">เลือกช่วงวันที่ (รายวัน)</button>
             </div>
         </div>
 
@@ -84,8 +100,17 @@
         </div>
 
         <div class="form-group" id="dateFilterContainer" style="display: none;">
-            <label>📅 เลือกวันที่ที่ต้องการสรุปยอด:</label>
-            <input type="date" id="filterDate" onchange="loadDashboardOnline()">
+            <label>📅 เลือกช่วงวันที่ต้องการสรุปยอด:</label>
+            <div class="date-range-group">
+                <div>
+                    <span style="font-size:14px; color:#666;">จากวันที่:</span>
+                    <input type="date" id="filterDateStart" onchange="loadDashboardOnline()">
+                </div>
+                <div>
+                    <span style="font-size:14px; color:#666;">ถึงวันที่:</span>
+                    <input type="date" id="filterDateEnd" onchange="loadDashboardOnline()">
+                </div>
+            </div>
         </div>
 
         <div id="dashboardResult" class="dashboard-card">
@@ -95,6 +120,7 @@
 </div>
 
 <script>
+    // ใส่ลิงก์ที่คุณส่งมาให้เรียบร้อยแล้วครับ
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEz8c-8yl8icdRe56B9lMQq_fQGvpnWG9b6-V2ZSrbuu6F-o2Vq6UwO6gmh8vvLalFKw/exec";
     let currentFilterType = 'month';
 
@@ -110,7 +136,8 @@
 
     document.getElementById('inputDate').valueAsDate = new Date();
     document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
-    document.getElementById('filterDate').valueAsDate = new Date();
+    document.getElementById('filterDateStart').valueAsDate = new Date();
+    document.getElementById('filterDateEnd').valueAsDate = new Date();
 
     function setFilterType(type) {
         currentFilterType = type;
@@ -124,13 +151,16 @@
     }
 
     function saveDataOnline() {
+        const nameSelect = document.getElementById('inputName');
+        const name = nameSelect.value;
         const date = document.getElementById('inputDate').value;
         const item = document.getElementById('inputItem').value;
         const qty = parseInt(document.getElementById('inputQty').value);
         const msg = document.getElementById('saveMsg');
         const btn = document.getElementById('btnSubmit');
 
-        if(!date || !qty) { alert("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
+        if(!name) { alert("กรุณาเลือกชื่อของคุณก่อนส่งข้อมูล"); return; }
+        if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
 
         btn.disabled = true;
         msg.style.display = 'block';
@@ -142,11 +172,12 @@
             mode: 'no-cors',
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date, item, qty })
+            body: JSON.stringify({ name, date, item, qty })
         }).then(() => {
             msg.style.color = 'green';
             msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
             document.getElementById('inputQty').value = '';
+            nameSelect.selectedIndex = 0;
             btn.disabled = false;
             setTimeout(() => msg.style.display = 'none', 3000);
         }).catch(err => {
@@ -156,9 +187,17 @@
         });
     }
 
+    function formatDateLabel(dateStr) {
+        if(!dateStr) return '';
+        const parts = dateStr.split('-');
+        if(parts.length < 3) return dateStr;
+        return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+    }
+
     function loadDashboardOnline() {
         const selectedMonth = document.getElementById('filterMonth').value;
-        const selectedDate = document.getElementById('filterDate').value;
+        const startDateStr = document.getElementById('filterDateStart').value;
+        const endDateStr = document.getElementById('filterDateEnd').value;
         const resultArea = document.getElementById('dashboardResult');
 
         resultArea.innerHTML = '<p class="loading">🔄 กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</p>';
@@ -178,42 +217,20 @@
                 });
                 displayTitle = `ประจำเดือน ${selectedMonth}`;
             } else {
+                const startSec = new Date(startDateStr).getTime();
+                const endSec = new Date(endDateStr).getTime();
+
                 filtered = serverData.filter(d => {
                     if(!d.date) return false;
                     let rowRaw = String(d.date).trim();
                     if(rowRaw.includes('T')) rowRaw = rowRaw.split('T')[0];
                     if(rowRaw.includes(' ')) rowRaw = rowRaw.split(' ')[0];
+                    if(rowRaw.includes('/')) rowRaw = rowRaw.replaceAll('/', '-');
                     
-                    // ป้องกันความเพี้ยนของฟอร์แมตปฏิทินไทย-สากล ด้วยการแกะเช็คตัวเลข
-                    const targetParts = selectedDate.split('-'); // [YYYY, MM, DD]
-                    
-                    if(rowRaw.includes('-')) {
-                        const rowParts = rowRaw.split('-');
-                        if(rowParts.length >= 3) {
-                            return parseInt(rowParts[0]) === parseInt(targetParts[0]) &&
-                                   parseInt(rowParts[1]) === parseInt(targetParts[1]) &&
-                                   parseInt(rowParts[2]) === parseInt(targetParts[2]);
-                        }
-                    } else if(rowRaw.includes('/')) {
-                        const rowParts = rowRaw.split('/');
-                        if(rowParts.length >= 3) {
-                            // เช็คได้ทั้งกรณีระบบเก็บแบบ DD/MM/YYYY หรือ YYYY/MM/DD
-                            if(rowParts[0].length === 4) {
-                                return parseInt(rowParts[0]) === parseInt(targetParts[0]) &&
-                                       parseInt(rowParts[1]) === parseInt(targetParts[1]) &&
-                                       parseInt(rowParts[2]) === parseInt(targetParts[2]);
-                            } else {
-                                return parseInt(rowParts[2]) === parseInt(targetParts[0]) &&
-                                       parseInt(rowParts[1]) === parseInt(targetParts[1]) &&
-                                       parseInt(rowParts[0]) === parseInt(targetParts[2]);
-                            }
-                        }
-                    }
-                    return rowRaw === selectedDate;
+                    const rowSec = new Date(rowRaw).getTime();
+                    return rowSec >= startSec && rowSec <= endSec;
                 });
-                
-                const dateParts = selectedDate.split('-');
-                displayTitle = `ประจำวันที่ ${parseInt(dateParts[2])}/${parseInt(dateParts[1])}/${dateParts[0]}`;
+                displayTitle = `ช่วงวันที่ ${formatDateLabel(startDateStr)} ถึง ${formatDateLabel(endDateStr)}`;
             }
             
             if(filtered.length === 0) {
@@ -221,17 +238,23 @@
                 return;
             }
 
-            const summary = {};
+            const itemSummary = {};
+            const userSummary = {};
             let grandTotal = 0;
+
             filtered.forEach(d => {
                 const q = parseInt(d.qty) || 0;
-                summary[d.item] = (summary[d.item] || 0) + q;
+                const uName = d.name || d.username || "ไม่ระบุชื่อ";
                 grandTotal += q;
+
+                itemSummary[d.item] = (itemSummary[d.item] || 0) + q;
+                userSummary[uName] = (userSummary[uName] || 0) + q;
             });
 
-            let html = `<h3 style="text-align:center;">ยอดรวมออนไลน์${displayTitle}: <span style="color:#005088">${grandTotal.toLocaleString()} เครื่อง</span></h3>`;
-            const sortedItems = Object.entries(summary).sort((a, b) => b[1] - a[1]);
-
+            let html = `<h3 style="text-align:center; margin-bottom:20px;">ยอดรวมออนไลน์${displayTitle}: <span style="color:#005088">${grandTotal.toLocaleString()} เครื่อง</span></h3>`;
+            html += `<h4>📦 สรุปยอดตามรายการวัสดุ</h4>`;
+            
+            const sortedItems = Object.entries(itemSummary).sort((a, b) => b[1] - a[1]);
             sortedItems.forEach(([name, val]) => {
                 const percent = grandTotal > 0 ? (val / grandTotal) * 100 : 0;
                 html += `
@@ -242,6 +265,18 @@
                     </div>
                 `;
             });
+
+            html += `<div class="sub-section"><h4>👤 สรุปยอดตามรายชื่อผู้ต้องการสินค้า</h4></div>`;
+            const sortedUsers = Object.entries(userSummary).sort((a, b) => b[1] - a[1]);
+            sortedUsers.forEach(([uName, val]) => {
+                html += `
+                    <div class="stat-item" style="border-bottom: 1px dashed #eee;">
+                        <div class="stat-name">👉 ${uName}</div>
+                        <div class="stat-value" style="color:#005088; font-size:16px;">${val.toLocaleString()} ชิ้น</div>
+                    </div>
+                `;
+            });
+
             resultArea.innerHTML = html;
         })
         .catch(err => {
