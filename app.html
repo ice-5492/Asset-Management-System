@@ -51,4 +51,170 @@
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🔢 จำนวนที่ต้องใช้ (เครื่อง/ชิ้น):</label>
+            <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1">
+        </div>
+        <button class="btn-main" id="btnSubmit" onclick="saveDataOnline()">ส่งข้อมูลเข้าสู่ระบบกลาง</button>
+        <p id="saveMsg" style="text-align: center; font-weight: bold; display: none;"></p>
+    </div>
+
+    <div id="dashboard" class="content">
+        <h2>Dashboard สรุปยอดรวมออนไลน์</h2>
+        
+        <div class="form-group">
+            <label>🔍 รูปแบบการดูสรุปยอด:</label>
+            <div class="filter-toggle">
+                <button id="toggleMonth" class="btn-toggle active" onclick="setFilterType('month')">รายเดือน</button>
+                <button id="toggleDate" class="btn-toggle" onclick="setFilterType('date')">รายวัน (ปฏิทิน)</button>
+            </div>
+        </div>
+
+        <div class="form-group" id="monthFilterContainer">
+            <label>📅 เลือกเดือนที่ต้องการสรุปยอด:</label>
+            <input type="month" id="filterMonth" onchange="loadDashboardOnline()">
+        </div>
+
+        <div class="form-group" id="dateFilterContainer" style="display: none;">
+            <label>📅 เลือกวันที่ที่ต้องการสรุปยอด:</label>
+            <input type="date" id="filterDate" onchange="loadDashboardOnline()">
+        </div>
+
+        <div id="dashboardResult" class="dashboard-card">
+            <p style="text-align: center; color: #888;">กำลังโหลดฐานข้อมูลกลาง...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEz8c-8yl8icdRe56B9lMQq_fQGvpnWG9b6-V2ZSrbuu6F-o2Vq6UwO6gmh8vvLalFKw/exec";
+    let currentFilterType = 'month';
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if (window.event && window.event.currentTarget) {
+            window.event.currentTarget.classList.add('active');
+        }
+        if(tabId === 'dashboard') loadDashboardOnline();
+    }
+
+    document.getElementById('inputDate').valueAsDate = new Date();
+    document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('filterDate').valueAsDate = new Date();
+
+    function setFilterType(type) {
+        currentFilterType = type;
+        document.getElementById('toggleMonth').classList.toggle('active', type === 'month');
+        document.getElementById('toggleDate').classList.toggle('active', type === 'date');
+        
+        document.getElementById('monthFilterContainer').style.display = type === 'month' ? 'block' : 'none';
+        document.getElementById('dateFilterContainer').style.display = type === 'date' ? 'block' : 'none';
+        
+        loadDashboardOnline();
+    }
+
+    function saveDataOnline() {
+        const date = document.getElementById('inputDate').value;
+        const item = document.getElementById('inputItem').value;
+        const qty = parseInt(document.getElementById('inputQty').value);
+        const msg = document.getElementById('saveMsg');
+        const btn = document.getElementById('btnSubmit');
+
+        if(!date || !qty) { alert("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
+
+        btn.disabled = true;
+        msg.style.display = 'block';
+        msg.style.color = '#005088';
+        msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date, item, qty })
+        }).then(() => {
+            msg.style.color = 'green';
+            msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
+            document.getElementById('inputQty').value = '';
+            btn.disabled = false;
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }).catch(err => {
+            msg.style.color = 'red';
+            msg.innerText = "❌ เกิดข้อผิดพลาดในการส่งข้อมูล";
+            btn.disabled = false;
+        });
+    }
+
+    function loadDashboardOnline() {
+        const selectedMonth = document.getElementById('filterMonth').value;
+        const selectedDate = document.getElementById('filterDate').value;
+        const resultArea = document.getElementById('dashboardResult');
+
+        resultArea.innerHTML = '<p class="loading">🔄 กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</p>';
+
+        fetch(GOOGLE_SCRIPT_URL)
+        .then(res => res.json())
+        .then(serverData => {
+            let filtered = [];
+            let displayTitle = "";
+
+            if (currentFilterType === 'month') {
+                filtered = serverData.filter(d => d.date && d.date.startsWith(selectedMonth));
+                displayTitle = `ประจำเดือน ${selectedMonth}`;
+            } else {
+                filtered = serverData.filter(d => {
+                    if(!d.date) return false;
+                    const dDate = new Date(d.date).toISOString().slice(0, 10);
+                    return dDate === selectedDate;
+                });
+                const dateObj = new Date(selectedDate);
+                displayTitle = `ประจำวันที่ ${dateObj.toLocaleDateString('th-TH', {day: 'numeric', month: 'long', year: 'numeric'})}`;
+            }
+            
+            if(filtered.length === 0) {
+                resultArea.innerHTML = `<p style="text-align: center; color: #888;">❌ ไม่มีข้อมูลการใช้ของ${displayTitle}</p>`;
+                return;
+            }
+
+            const summary = {};
+            let grandTotal = 0;
+            filtered.forEach(d => {
+                const q = parseInt(d.qty) || 0;
+                summary[d.item] = (summary[d.item] || 0) + q;
+                grandTotal += q;
+            });
+
+            let html = `<h3 style="text-align:center;">ยอดรวมออนไลน์${displayTitle}: <span style="color:#005088">${grandTotal.toLocaleString()} เครื่อง</span></h3>`;
+            const sortedItems = Object.entries(summary).sort((a, b) => b[1] - a[1]);
+
+            sortedItems.forEach(([name, val]) => {
+                const percent = grandTotal > 0 ? (val / grandTotal) * 100 : 0;
+                html += `
+                    <div class="stat-item">
+                        <div class="stat-name">${name}</div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${percent}%"></div></div>
+                        <div class="stat-value">${val.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            resultArea.innerHTML = html;
+        })
+        .catch(err => {
+            resultArea.innerHTML = '<p style="text-align: center; color: red;">❌ ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้</p>';
+        });
+    }
+</script>
+
+</body>
+</html>
