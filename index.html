@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการวัสดุแพทย์ออนไลน์ & Dashboard</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .app-container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .tabs { display: flex; background: #005088; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .tab-btn.active { background: #11CAA0; color: #000; }
+        .content { padding: 30px; display: none; }
+        .content.active { display: block; }
+        h2 { color: #005088; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn-main { width: 100%; padding: 15px; background: #005088; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        .btn-main:hover { background: #003d66; }
+        .dashboard-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
+        .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #ddd; }
+        .stat-name { flex: 1; color: #333; }
+        .stat-value { font-weight: bold; color: #11CAA0; font-size: 18px; width: 100px; text-align: right; }
+        .chart-bar-bg { flex: 0 0 150px; background: #ddd; height: 10px; border-radius: 5px; margin: 0 15px; overflow: hidden; }
+        .chart-bar-fill { background: #11CAA0; height: 100%; }
+        .loading { text-align: center; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('record')">📝 บันทึกการใช้ของ (User)</button>
+        <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard สรุปผล (Admin)</button>
+    </div>
+
+    <div id="record" class="content active">
+        <h2>บันทึกความต้องการวัสดุ</h2>
+        <div class="form-group">
+            <label>📅 เลือกวันที่ต้องการใช้ (ปฏิทิน):</label>
+            <input type="date" id="inputDate">
+        </div>
+        <div class="form-group">
+            <label>📦 เลือกรายการวัสดุ (10 รายการ):</label>
+            <select id="inputItem">
+                <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN</option>
+                <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
+                <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
+                <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
+                <option>สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
+                <option>สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN</option>
+                <option>สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN</option>
+                <option>สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN</option>
+                <option>สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN</option>
+                <option>สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🔢 จำนวนที่ต้องใช้ (เครื่อง/ชิ้น):</label>
+            <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1">
+        </div>
+        <button class="btn-main" id="btnSubmit" onclick="saveDataOnline()">ส่งข้อมูลเข้าสู่ระบบกลาง</button>
+        <p id="saveMsg" style="text-align: center; font-weight: bold; display: none;"></p>
+    </div>
+
+    <div id="dashboard" class="content">
+        <h2>Dashboard สรุปยอดรวมออนไลน์</h2>
+        <div class="form-group">
+            <label>🔍 เลือกเดือนที่ต้องการสรุปยอด:</label>
+            <input type="month" id="filterMonth" onchange="loadDashboardOnline()">
+        </div>
+        <div id="dashboardResult" class="dashboard-card">
+            <p style="text-align: center; color: #888;">กำลังโหลดฐานข้อมูลกลาง...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ⚠️ วาง URL ของ Google Web App ที่ได้จากขั้นตอนที่ 1 ที่นี่
+    const GOOGLE_SCRIPT_URL = 'ใส่_URL_ที่ได้จาก_Apps_Script_ตรงนี้ครับ'; 
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        if(tabId === 'dashboard') loadDashboardOnline();
+    }
+
+    document.getElementById('inputDate').valueAsDate = new Date();
+    document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
+
+    // บันทึกข้อมูลออนไลน์ไปยัง Google Sheets
+    function saveDataOnline() {
+        const date = document.getElementById('inputDate').value;
+        const item = document.getElementById('inputItem').value;
+        const qty = parseInt(document.getElementById('inputQty').value);
+        const msg = document.getElementById('saveMsg');
+        const btn = document.getElementById('btnSubmit');
+
+        if(!date || !qty) { alert("กรุณากรอกข้อมูลให้ครบถ้วน"); return; }
+        if(GOOGLE_SCRIPT_URL.includes('ใส่_URL')) { alert("กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ"); return; }
+
+        btn.disabled = true;
+        msg.style.display = 'block';
+        msg.style.color = '#005088';
+        msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date, item, qty })
+        }).then(() => {
+            msg.style.color = 'green';
+            msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
+            document.getElementById('inputQty').value = '';
+            btn.disabled = false;
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }).catch(err => {
+            msg.style.color = 'red';
+            msg.innerText = "❌ เกิดข้อผิดพลาดในการส่งข้อมูล";
+            btn.disabled = false;
+        });
+    }
+
+    // ดึงข้อมูลจาก Google Sheets มาแสดงผลที่ Dashboard
+    function loadDashboardOnline() {
+        const selectedMonth = document.getElementById('filterMonth').value;
+        const resultArea = document.getElementById('dashboardResult');
+        
+        if(GOOGLE_SCRIPT_URL.includes('ใส่_URL')) {
+            resultArea.innerHTML = '<p style="text-align: center; color: red;">⚠️ กรุณาใส่ URL ของ Google Script ในโค้ดก่อนครับ</p>';
+            return;
+        }
+
+        resultArea.innerHTML = '<p class="loading">🔄 กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</p>';
+
+        fetch(GOOGLE_SCRIPT_URL)
+        .then(res => res.json())
+        .then(serverData => {
+            // กรองข้อมูลเฉพาะเดือนที่เลือก
+            const filtered = serverData.filter(d => d.date && d.date.startsWith(selectedMonth));
+            
+            if(filtered.length === 0) {
+                resultArea.innerHTML = `<p style="text-align: center; color: #888;">❌ ไม่มีข้อมูลการใช้ของในเดือน ${selectedMonth}</p>`;
+                return;
+            }
+
+            const summary = {};
+            let grandTotal = 0;
+            filtered.forEach(d => {
+                const q = parseInt(d.qty) || 0;
+                summary[d.item] = (summary[d.item] || 0) + q;
+                grandTotal += q;
+            });
+
+            let html = `<h3 style="text-align:center;">ยอดรวมออนไลน์เดือน ${selectedMonth}: <span style="color:#005088">${grandTotal.toLocaleString()} เครื่อง</span></h3>`;
+            const sortedItems = Object.entries(summary).sort((a, b) => b[1] - a[1]);
+
+            sortedItems.forEach(([name, val]) => {
+                const percent = grandTotal > 0 ? (val / grandTotal) * 100 : 0;
+                html += `
+                    <div class="stat-item">
+                        <div class="stat-name">${name}</div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${percent}%"></div></div>
+                        <div class="stat-value">${val.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            resultArea.innerHTML = html;
+        })
+        .catch(err => {
+            resultArea.innerHTML = '<p style="text-align: center; color: red;">❌ ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้</p>';
+        });
+    }
+</script>
+
+</body>
+</html>
