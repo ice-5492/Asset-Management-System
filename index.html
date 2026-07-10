@@ -45,7 +45,7 @@
             <label>📦 เลือกรายการวัสดุ (10 รายการ):</label>
             <select id="inputItem">
                 <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN</option>
-                <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
+                <option>สายวัดความเข้มข้น of ออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
                 <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
                 <option>สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
                 <option>สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
@@ -77,21 +77,22 @@
 </div>
 
 <script>
-    // URL สำหรับเชื่อมต่อฐานข้อมูล Google Sheets เรียบร้อยแล้วครับ
+    // แก้ไขใส่เครื่องหมายอัญประกาศครอบ URL ให้สมบูรณ์เรียบร้อยแล้วครับ
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFNZQ-7CSpUFqWkNojU-lzoTKx78YGaE76czYdnEHfmLL6FILolj01s1ClGeF32HUerw/exec";
 
     function switchTab(tabId) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
         if(tabId === 'dashboard') loadDashboardOnline();
     }
 
     document.getElementById('inputDate').valueAsDate = new Date();
     document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
 
-    // บันทึกข้อมูลออนไลน์ไปยัง Google Sheets
     function saveDataOnline() {
         const date = document.getElementById('inputDate').value;
         const item = document.getElementById('inputItem').value;
@@ -125,7 +126,6 @@
         });
     }
 
-    // ดึงข้อมูลจาก Google Sheets มาแสดงผลที่ Dashboard
     function loadDashboardOnline() {
         const selectedMonth = document.getElementById('filterMonth').value;
         const resultArea = document.getElementById('dashboardResult');
@@ -135,7 +135,6 @@
         fetch(GOOGLE_SCRIPT_URL)
         .then(res => res.json())
         .then(serverData => {
-            // กรองข้อมูลเฉพาะเดือนที่เลือก
             const filtered = serverData.filter(d => d.date && d.date.startsWith(selectedMonth));
             
             if(filtered.length === 0) {
@@ -162,3 +161,15 @@
                         <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ${percent}%"></div></div>
                         <div class="stat-value">${val.toLocaleString()}</div>
                     </div>
+                `;
+            });
+            resultArea.innerHTML = html;
+        })
+        .catch(err => {
+            resultArea.innerHTML = '<p style="text-align: center; color: red;">❌ ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้</p>';
+        });
+    }
+</script>
+
+</body>
+</html>
