@@ -20,6 +20,7 @@
         .date-range-group div { flex: 1; }
         .btn-main { width: 100%; padding: 15px; background: #005088; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
         .btn-main:hover { background: #003d66; }
+        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
         .dashboard-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
         .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #ddd; }
         .stat-name { flex: 1; color: #333; }
@@ -31,6 +32,7 @@
         .btn-toggle { flex: 1; padding: 10px; background: #e2e8f0; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-toggle.active { background: #005088; color: white; }
         .sub-section { margin-top: 25px; padding-top: 15px; border-top: 2px dashed #e2e8f0; }
+        .error-text { color: red; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -59,7 +61,7 @@
         </div>
         <div class="form-group">
             <label>📅 เลือกวันที่ต้องการใช้ (ปฏิทิน):</label>
-            <input type="date" id="inputDate">
+            <input type="date" id="inputDate" onchange="checkDuplicateSerial()">
         </div>
         <div class="form-group">
             <label>📦 เลือกรายการวัสดุ (17 รายการ):</label>
@@ -83,6 +85,14 @@
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
             </select>
         </div>
+
+        <!-- ช่องคีย์หมายเลขครุภัณฑ์ -->
+        <div class="form-group">
+            <label>🆔 คีย์หมายเลขครุภัณฑ์ (จำเป็นต้องระบุเพื่อบันทึกการเบิก):</label>
+            <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์" oninput="checkDuplicateSerial()">
+            <div id="serialError" class="error-text">❌ หมายเลขครุภัณฑ์นี้เพิ่งถูกใช้งานไปไม่ถึง 1 ปี! ไม่สามารถเลือกซ้ำได้</div>
+        </div>
+
         <div class="form-group">
             <label>🔢 จำนวนที่ต้องใช้ (เครื่อง/ชิ้น):</label>
             <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1">
@@ -129,8 +139,10 @@
 </div>
 
 <script>
+    // URL ของ Web App ล่าสุดที่คุณคัดลอกมา
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEz8c-8yl8icdRe56B9lMQq_fQGvpnWG9b6-V2ZSrbuu6F-o2Vq6UwO6gmh8vvLalFKw/exec";
     let currentFilterType = 'month';
+    let databaseRecords = []; 
 
     function switchTab(tabId) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
@@ -146,6 +158,53 @@
     document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
     document.getElementById('filterDateStart').valueAsDate = new Date();
     document.getElementById('filterDateEnd').valueAsDate = new Date();
+
+    fetchDatabase();
+
+    function fetchDatabase() {
+        fetch(GOOGLE_SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+            databaseRecords = data;
+        })
+        .catch(err => console.error("Error fetching database: ", err));
+    }
+
+    // ฟังก์ชันเช็คการซ้ำซ้อนภายใน 1 ปี (365 วัน)
+    function checkDuplicateSerial() {
+        const serialInput = document.getElementById('inputSerial').value.trim().toLowerCase();
+        const inputDateStr = document.getElementById('inputDate').value;
+        const errorText = document.getElementById('serialError');
+        const btn = document.getElementById('btnSubmit');
+
+        if (serialInput === "" || !inputDateStr) {
+            errorText.style.display = 'none';
+            btn.disabled = false;
+            return;
+        }
+
+        const inputTime = new Date(inputDateStr).getTime();
+        const oneYearInMs = 365 * 24 * 60 * 60 * 1000; 
+
+        const hasConflictWithinOneYear = databaseRecords.some(record => {
+            if (!record.serial || !record.date) return false;
+            const dbSerial = String(record.serial).trim().toLowerCase();
+            if (dbSerial !== serialInput) return false;
+
+            const dbTime = new Date(record.date).getTime();
+            const timeDiff = Math.abs(inputTime - dbTime);
+
+            return timeDiff < oneYearInMs;
+        });
+
+        if (hasConflictWithinOneYear) {
+            errorText.style.display = 'block';
+            btn.disabled = true; 
+        } else {
+            errorText.style.display = 'none';
+            btn.disabled = false; 
+        }
+    }
 
     function setFilterType(type) {
         currentFilterType = type;
@@ -163,31 +222,41 @@
         const name = nameSelect.value;
         const date = document.getElementById('inputDate').value;
         const item = document.getElementById('inputItem').value;
+        const serial = document.getElementById('inputSerial').value.trim();
         const qty = parseInt(document.getElementById('inputQty').value);
         const msg = document.getElementById('saveMsg');
         const btn = document.getElementById('btnSubmit');
 
         if(!name) { alert("กรุณาเลือกชื่อของคุณก่อนส่งข้อมูล"); return; }
         if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
+        
+        if(!serial) { 
+            alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อระบุประวัติเบิกจ่าย หากไม่มีจะไม่สามารถทำรายการได้"); 
+            document.getElementById('inputSerial').focus();
+            return; 
+        }
 
         btn.disabled = true;
         msg.style.display = 'block';
         msg.style.color = '#005088';
         msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
 
-        // ส่งข้อมูลโครงสร้างใหม่ (ส่ง serial เป็นค่าว่างเผื่อไว้ก่อน เพื่อให้ระบบสลับตารางไม่พัง)
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, date, item, qty, serial: "" })
+            body: JSON.stringify({ name, date, item, qty, serial })
         }).then(() => {
             msg.style.color = 'green';
             msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
             document.getElementById('inputQty').value = '';
+            document.getElementById('inputSerial').value = '';
             nameSelect.selectedIndex = 0;
             btn.disabled = false;
+            
+            fetchDatabase();
+            
             setTimeout(() => msg.style.display = 'none', 3000);
         }).catch(err => {
             msg.style.color = 'red';
