@@ -41,6 +41,7 @@
         <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard สรุปผล (Admin)</button>
     </div>
 
+    <!-- หน้าบันทึกข้อมูล -->
     <div id="record" class="content active">
         <h2>บันทึกความต้องการวัสดุ</h2>
         <div class="form-group">
@@ -61,18 +62,25 @@
             <input type="date" id="inputDate">
         </div>
         <div class="form-group">
-            <label>📦 เลือกรายการวัสดุ (10 รายการ):</label>
+            <label>📦 เลือกรายการวัสดุ (17 รายการ):</label>
             <select id="inputItem">
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN, Mindray)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN, Mindray)</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS, Philips Goldway)</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray, Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray, Philips)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
             </select>
         </div>
         <div class="form-group">
@@ -83,6 +91,7 @@
         <p id="saveMsg" style="text-align: center; font-weight: bold; display: none;"></p>
     </div>
 
+    <!-- หน้า Dashboard -->
     <div id="dashboard" class="content">
         <h2>Dashboard สรุปยอดรวมออนไลน์</h2>
         
@@ -120,7 +129,6 @@
 </div>
 
 <script>
-    // ใส่ลิงก์ที่คุณส่งมาให้เรียบร้อยแล้วครับ
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEz8c-8yl8icdRe56B9lMQq_fQGvpnWG9b6-V2ZSrbuu6F-o2Vq6UwO6gmh8vvLalFKw/exec";
     let currentFilterType = 'month';
 
@@ -167,12 +175,13 @@
         msg.style.color = '#005088';
         msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
 
+        // ส่งข้อมูลโครงสร้างใหม่ (ส่ง serial เป็นค่าว่างเผื่อไว้ก่อน เพื่อให้ระบบสลับตารางไม่พัง)
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, date, item, qty })
+            body: JSON.stringify({ name, date, item, qty, serial: "" })
         }).then(() => {
             msg.style.color = 'green';
             msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
