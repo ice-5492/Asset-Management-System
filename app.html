@@ -26,9 +26,6 @@
         .chart-bar-bg { flex: 0 0 150px; background: #ddd; height: 10px; border-radius: 5px; margin: 0 15px; overflow: hidden; }
         .chart-bar-fill { background: #11CAA0; height: 100%; }
         .loading { text-align: center; color: #666; font-style: italic; }
-        .filter-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
-        .btn-toggle { flex: 1; padding: 10px; background: #e2e8f0; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-toggle.active { background: #005088; color: white; }
         .sub-section { margin-top: 25px; padding-top: 15px; border-top: 2px dashed #e2e8f0; }
         .error-text { color: red; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
         .valid-text { color: green; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
@@ -63,21 +60,21 @@
             <input type="date" id="inputDate" onchange="validateSerialInput()">
         </div>
         <div class="form-group">
-            <label>📦 เลือกรายการวัสดุ (17 รายการ):</label>
+            <label>📦 เลือกรายการวัสดุ (17 รายการล่าสุด):</label>
             <select id="inputItem">
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN, Mindray)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN, Mindray)</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS, Philips Goldway)</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)</option>
+                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (sizeofเครื่อง ยี่ห้อ Philips, Philips Goldway)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray, Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray, Philips)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)</option>
+                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)</option>
                 <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
                 <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
@@ -87,10 +84,10 @@
 
         <!-- ช่องคีย์หมายเลขครุภัณฑ์ -->
         <div class="form-group">
-            <label>🆔 คีย์หมายเลขครุภัณฑ์ (ระบบจะตรวจสอบจากฐานข้อมูล 291 เครื่อง):</label>
-            <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์ เช่น 66695-033-138" oninput="validateSerialInput()">
+            <label>🆔 คีย์หมายเลขครุภัณฑ์ (ระบบควบคุมตรวจสอบเลขซ้ำซ้อน 291 เครื่องอัตโนมัติ):</label>
+            <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์" oninput="validateSerialInput()">
             <div id="serialError" class="error-text"></div>
-            <div id="serialValid" class="valid-text">✅ หมายเลขครุภัณฑ์ถูกต้อง และสามารถเบิกได้</div>
+            <div id="serialValid" class="valid-text"></div>
         </div>
 
         <div class="form-group">
@@ -113,23 +110,20 @@
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEz8c-8yl8icdRe56B9lMQq_fQGvpnWG9b6-V2ZSrbuu6F-o2Vq6UwO6gmh8vvLalFKw/exec";
     
-    let historyRecords = [];     // ประวัติการเบิก (ชีตแรก)
-    let validAssetSerials = [];  // รายการครุภัณฑ์ที่ถูกต้อง 291 เครื่อง (ชีตสอง)
+    let historyRecords = [];     
+    let validAssetSerials = [];  
 
     document.getElementById('inputDate').valueAsDate = new Date();
 
-    // ดึงข้อมูลฐานข้อมูลเริ่มต้นครั้งแรก
     fetchDatabase();
 
     function fetchDatabase() {
         fetch(GOOGLE_SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
-            // โค้ดหลังบ้านที่ส่งกลับมา จะส่งเป็น Object ที่แยกประวัติ และรายการครุภัณฑ์ให้
             historyRecords = data.history || [];
             validAssetSerials = data.validSerials || [];
             
-            // กรณีโค้ดเก่าส่งมาเฉพาะอาเรย์ปกติ ให้แปลงข้อมูลรองรับไว้ก่อน
             if(Array.isArray(data) && data.length > 0 && !data[0].hasOwnProperty('validSerials')){
                 historyRecords = data;
             }
@@ -137,7 +131,6 @@
         .catch(err => console.error("Error fetching database: ", err));
     }
 
-    // ฟังก์ชันการตรวจสอบเลขครุภัณฑ์หลัก
     function validateSerialInput() {
         const serialInput = document.getElementById('inputSerial').value.trim().toLowerCase();
         const inputDateStr = document.getElementById('inputDate').value;
@@ -152,19 +145,16 @@
             return;
         }
 
-        // เงื่อนไขที่ 1: ตรวจเช็คว่าเลขที่พิมพ์ อยู่ในกลุ่มเลขครุภัณฑ์ 291 เครื่องหรือไม่ (ถ้าข้อมูลในชีตสองโหลดมาแล้ว)
-        if(validAssetSerials.length > 0) {
-            const isExistInMaster = validAssetSerials.some(s => String(s).trim().toLowerCase() === serialInput);
-            if(!isExistInMaster) {
-                errorText.style.display = 'block';
-                validText.style.display = 'none';
-                errorText.innerText = "❌ ไม่พบหมายเลขครุภัณฑ์นี้ในระบบ (กรุณาตรวจสอบการสะกดคำ)";
-                btn.disabled = true;
-                return;
-            }
+        const isMasterAsset = validAssetSerials.some(s => String(s).trim().toLowerCase() === serialInput);
+
+        if (!isMasterAsset) {
+            errorText.style.display = 'none';
+            validText.style.display = 'block';
+            validText.innerText = "✅ หมายเลขทั่วไป (ไม่อยู่ในกลุ่มควบคุม 291 เครื่อง): สามารถเบิกได้ทันที";
+            btn.disabled = false;
+            return; 
         }
 
-        // เงื่อนไขที่ 2: ตรวจเช็คการเบิกซ้ำภายใน 1 ปี (365 วัน)
         const inputTime = new Date(inputDateStr).getTime();
         const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
 
@@ -181,11 +171,12 @@
         if (hasConflict) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
-            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้เพิ่งถูกใช้งานไปไม่ถึง 1 ปี! ไม่สามารถเบิกซ้ำได้";
+            errorText.innerText = "❌ หมายเลขครุภัณฑ์ในกลุ่มควบคุมนี้ เพิ่งถูกใช้งานไปไม่ถึง 1 ปี! ไม่สามารถเบิกซ้ำได้";
             btn.disabled = true;
         } else {
             errorText.style.display = 'none';
             validText.style.display = 'block';
+            validText.innerText = "✅ หมายเลขครุภัณฑ์ควบคุมถูกต้อง และยังไม่มีประวัติเบิกซ้ำใน 1 ปี";
             btn.disabled = false;
         }
     }
@@ -212,10 +203,11 @@
 
         if(!name) { alert("กรุณาเลือกชื่อของคุณก่อนส่งข้อมูล"); return; }
         if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
-        if(!serial) { alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อระบุประวัติเบิกจ่าย"); return; }
+        if(!serial) { alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อบันทึกประวัติการเบิกจ่าย"); return; }
 
         btn.disabled = true;
         msg.style.display = 'block';
+        msg.style.color = '#005088';
         msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
 
         fetch(GOOGLE_SCRIPT_URL, {
@@ -226,7 +218,7 @@
             body: JSON.stringify({ name, date, item, qty, serial })
         }).then(() => {
             msg.style.color = 'green';
-            msg.innerText = "✅ บันทึกสำเร็จ!";
+            msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
             document.getElementById('inputSerial').value = '';
             document.getElementById('serialValid').style.display = 'none';
             btn.disabled = false;
@@ -234,7 +226,7 @@
             setTimeout(() => msg.style.display = 'none', 3000);
         }).catch(err => {
             msg.style.color = 'red';
-            msg.innerText = "❌ เกิดข้อผิดพลาด";
+            msg.innerText = "❌ เกิดข้อผิดพลาดในการส่งข้อมูล";
             btn.disabled = false;
         });
     }
