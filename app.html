@@ -54,11 +54,6 @@
         </div>
 
         <div class="form-group">
-            <label>📄 เลขที่ใบงาน:</label>
-            <input type="text" id="inputJobNo" placeholder="กรุณากรอกเลขที่ใบงาน">
-        </div>
-
-        <div class="form-group">
             <label>🛠️ เลขที่ใบส่งซ่อม:</label>
             <input type="text" id="inputRepairNo" placeholder="กรุณากรอกเลขที่ใบส่งซ่อม">
         </div>
@@ -197,7 +192,6 @@
     function saveDataOnline() {
         const nameSelect = document.getElementById('inputName');
         const name = nameSelect.value;
-        const jobNo = document.getElementById('inputJobNo').value.trim();
         const repairNo = document.getElementById('inputRepairNo').value.trim();
         const date = document.getElementById('inputDate').value;
         const item = document.getElementById('inputItem').value;
@@ -207,7 +201,7 @@
         const btn = document.getElementById('btnSubmit');
 
         if(!name) { alert("กรุณาเลือกชื่อของคุณก่อนส่งข้อมูล"); return; }
-        if(!jobNo) { alert("กรุณากรอกเลขที่ใบงาน"); return; }
+        if(!repairNo) { alert("กรุณากรอกเลขที่ใบส่งซ่อม"); return; }
         if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
         if(!serial) { alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อบันทึกประวัติการเบิกจ่าย"); return; }
 
@@ -221,11 +215,10 @@
             mode: 'no-cors',
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, jobNo, repairNo, date, item, qty, serial })
+            body: JSON.stringify({ name, repairNo, date, item, qty, serial })
         }).then(() => {
             msg.style.color = 'green';
             msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
-            document.getElementById('inputJobNo').value = '';
             document.getElementById('inputRepairNo').value = '';
             document.getElementById('inputSerial').value = '';
             document.getElementById('serialValid').style.display = 'none';
@@ -253,11 +246,10 @@
         html += `<h4>📦 รายละเอียดการเบิกรายเครื่องล่าสุด:</h4>`;
         
         historyRecords.forEach(d => {
-            const displayJob = d.jobNo ? ` | 📄 ใบงาน: <b>${d.jobNo}</b>` : '';
             const displayRepair = d.repairNo ? ` | 🛠️ ใบส่งซ่อม: <b>${d.repairNo}</b>` : '';
             html += `
                 <div class="stat-item">
-                    <div class="stat-name">📅 ${d.date}${displayJob}${displayRepair} | 🆔 ครุภัณฑ์: <b>${d.serial}</b> <br> <span style="font-size:13px; color:#666;">${d.item} (โดย ${d.name})</span></div>
+                    <div class="stat-name">📅 ${d.date}${displayRepair} | 🆔 ครุภัณฑ์: <b>${d.serial}</b> <br> <span style="font-size:13px; color:#666;">${d.item} (โดย ${d.name})</span></div>
                     <div class="stat-value">${d.qty} ชิ้น</div>
                 </div>
             `;
