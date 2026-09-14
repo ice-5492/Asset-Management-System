@@ -111,13 +111,11 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzla0EXalN5_sZj-9JGvRPM-5D6_uuRMG-E9h_jV3GktwWY4AdtPo414aPN311tpLab9w/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZgKK-YkJzs3WTfShONwOgb3zJSeIeskfAAIT3TPvm_6maEYhGG_vJlregNK1TdyTY8w/exec";
     
     let historyRecords = [];     
-    let validAssetSerials = [];  
 
     document.getElementById('inputDate').valueAsDate = new Date();
-
     fetchDatabase();
 
     function fetchDatabase() {
@@ -125,7 +123,6 @@
         .then(res => res.json())
         .then(data => {
             historyRecords = data.history || [];
-            validAssetSerials = data.validSerials || [];
             validateSerialInput();
         })
         .catch(err => console.error("Error fetching database: ", err));
@@ -136,24 +133,13 @@
         return String(val).trim().toLowerCase().replace(/[\s\-_]/g, '');
     }
 
-    function validateSerialInput() {
-        const rawSerial = document.getElementById('inputSerial').value;
+    function isDuplicateSerial(rawSerial, inputDateStr) {
         const serialInput = cleanSerial(rawSerial);
-        const inputDateStr = document.getElementById('inputDate').value;
-        const errorText = document.getElementById('serialError');
-        const validText = document.getElementById('serialValid');
-        const btn = document.getElementById('btnSubmit');
-
-        if (serialInput === "" || !inputDateStr) {
-            errorText.style.display = 'none';
-            validText.style.display = 'none';
-            btn.disabled = false;
-            return;
-        }
+        if (!serialInput || !inputDateStr) return false;
 
         const inputDateObj = new Date(inputDateStr);
 
-        const hasConflict = historyRecords.some(record => {
+        return historyRecords.some(record => {
             if (!record.serial || !record.date) return false;
             const dbSerial = cleanSerial(record.serial);
             if (dbSerial !== serialInput) return false;
@@ -165,17 +151,34 @@
             const diffDays = diffTime / (1000 * 60 * 60 * 24);
             return diffDays < 365;
         });
+    }
 
-        if (hasConflict) {
+    function validateSerialInput() {
+        const rawSerial = document.getElementById('inputSerial').value;
+        const inputDateStr = document.getElementById('inputDate').value;
+        const errorText = document.getElementById('serialError');
+        const validText = document.getElementById('serialValid');
+        const btn = document.getElementById('btnSubmit');
+
+        if (!rawSerial.trim() || !inputDateStr) {
+            errorText.style.display = 'none';
+            validText.style.display = 'none';
+            btn.disabled = false;
+            return false;
+        }
+
+        if (isDuplicateSerial(rawSerial, inputDateStr)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
             errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ เพิ่งถูกใช้งานไปไม่ถึง 1 ปี (365 วัน)! ไม่สามารถเบิกซ้ำได้";
             btn.disabled = true;
+            return true;
         } else {
             errorText.style.display = 'none';
             validText.style.display = 'block';
             validText.innerText = "✅ หมายเลขครุภัณฑ์ถูกต้อง สามารถส่งเบิกได้";
             btn.disabled = false;
+            return false;
         }
     }
 
@@ -204,6 +207,12 @@
         if(!repairNo) { alert("กรุณากรอกเลขที่ใบส่งซ่อม"); return; }
         if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
         if(!serial) { alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อบันทึกประวัติการเบิกจ่าย"); return; }
+
+        if (isDuplicateSerial(serial, date)) {
+            alert("❌ ไม่สามารถส่งข้อมูลได้: หมายเลขครุภัณฑ์นี้ถูกใช้งานไปแล้วในรอบ 1 ปี");
+            validateSerialInput();
+            return;
+        }
 
         btn.disabled = true;
         msg.style.display = 'block';
