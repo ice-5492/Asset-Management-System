@@ -111,7 +111,8 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZgKK-YkJzs3WTfShONwOgb3zJSeIeskfAAIT3TPvm_6maEYhGG_vJlregNK1TdyTY8w/exec";
+    // URL Web App ล่าสุดจาก Google Apps Script
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby39MjB5-6t_mamKhXA1WbNV35SlKKMLLR8mKx0vVgky4oTXCWkYwBSS2_NozTPdzEAdA/exec";
     
     let historyRecords = [];     
 
@@ -141,7 +142,7 @@
 
         return historyRecords.some(record => {
             if (!record.serial || !record.date) return false;
-            const dbSerial = cleanSerial(record.serial);
+            const dbSerial = record.serial;
             if (dbSerial !== serialInput) return false;
 
             const dbDateObj = new Date(record.date);
@@ -256,9 +257,10 @@
         
         historyRecords.forEach(d => {
             const displayRepair = d.repairNo ? ` | 🛠️ ใบส่งซ่อม: <b>${d.repairNo}</b>` : '';
+            const displaySerial = d.rawSerial || d.serial;
             html += `
                 <div class="stat-item">
-                    <div class="stat-name">📅 ${d.date}${displayRepair} | 🆔 ครุภัณฑ์: <b>${d.serial}</b> <br> <span style="font-size:13px; color:#666;">${d.item} (โดย ${d.name})</span></div>
+                    <div class="stat-name">📅 ${d.date}${displayRepair} | 🆔 ครุภัณฑ์: <b>${displaySerial}</b> <br> <span style="font-size:13px; color:#666;">${d.item} (โดย ${d.name})</span></div>
                     <div class="stat-value">${d.qty} ชิ้น</div>
                 </div>
             `;
