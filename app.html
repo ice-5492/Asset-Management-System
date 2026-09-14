@@ -26,6 +26,7 @@
         .loading { text-align: center; color: #666; font-style: italic; }
         .error-text { color: red; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
         .valid-text { color: green; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
+        .info-text { color: #005088; font-size: 14px; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -87,8 +88,9 @@
         </div>
 
         <div class="form-group">
-            <label>🆔 คีย์หมายเลขครุภัณฑ์ (เฉพาะ 291 รายการที่ถูกต้องเท่านั้น):</label>
+            <label>🆔 คีย์หมายเลขครุภัณฑ์ (เฉพาะรายการที่อนุญาตเท่านั้น):</label>
             <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์" oninput="validateSerialInput()">
+            <div id="loadingStatus" class="info-text">⏳ กำลังโหลดรายการครุภัณฑ์จากระบบ...</div>
             <div id="serialError" class="error-text"></div>
             <div id="serialValid" class="valid-text"></div>
         </div>
@@ -97,7 +99,7 @@
             <label>🔢 จำนวนที่ต้องใช้ (เครื่อง/ชิ้น):</label>
             <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1" value="1">
         </div>
-        <button class="btn-main" id="btnSubmit" onclick="saveDataOnline()">ส่งข้อมูลเข้าสู่ระบบกลาง</button>
+        <button class="btn-main" id="btnSubmit" onclick="saveDataOnline()" disabled>ส่งข้อมูลเข้าสู่ระบบกลาง</button>
         <p id="saveMsg" style="text-align: center; font-weight: bold; display: none;"></p>
     </div>
 
@@ -115,11 +117,16 @@
     
     let historyRecords = [];
     let allowedSerialsClean = []; 
+    let isLoaded = false;
 
     document.getElementById('inputDate').valueAsDate = new Date();
     fetchDatabase();
 
     function fetchDatabase() {
+        const loadingStatus = document.getElementById('loadingStatus');
+        loadingStatus.style.display = 'block';
+        loadingStatus.innerText = "⏳ กำลังดึงข้อมูลรายการครุภัณฑ์จากระบบ...";
+
         fetch(GOOGLE_SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
@@ -127,18 +134,25 @@
             if (data.allowedSerials && Array.isArray(data.allowedSerials)) {
                 allowedSerialsClean = data.allowedSerials.map(s => cleanSerial(s));
             }
+            isLoaded = true;
+            loadingStatus.style.display = 'none';
             validateSerialInput();
         })
-        .catch(err => console.error("Error fetching database: ", err));
+        .catch(err => {
+            console.error("Error fetching database: ", err);
+            loadingStatus.innerText = "❌ เกิดข้อผิดพลาดในการโหลดรายการครุภัณฑ์ กรุณารีเฟรชหน้าเว็บ";
+            loadingStatus.style.color = "red";
+        });
     }
 
     function cleanSerial(val) {
         if (!val) return "";
-        return String(val).trim().toLowerCase().replace(/[\s\-_]/g, '');
+        // ตัดช่องว่าง ขีด และวงเล็บออกเพื่อเปรียบเทียบค่าที่แท้จริง
+        return String(val).trim().toLowerCase().replace(/[\s\-_()]/g, '');
     }
 
     function isSerialAllowed(rawSerial) {
-        if (allowedSerialsClean.length === 0) return true;
+        if (!isLoaded || allowedSerialsClean.length === 0) return false;
         const inputClean = cleanSerial(rawSerial);
         return allowedSerialsClean.includes(inputClean);
     }
@@ -151,7 +165,7 @@
 
         return historyRecords.some(record => {
             if (!record.serial || !record.date) return false;
-            const dbSerial = record.serial;
+            const dbSerial = cleanSerial(record.serial);
             if (dbSerial !== serialInput) return false;
 
             const dbDateObj = new Date(record.date);
@@ -170,36 +184,40 @@
         const validText = document.getElementById('serialValid');
         const btn = document.getElementById('btnSubmit');
 
-        if (!rawSerial.trim() || !inputDateStr) {
+        if (!isLoaded) {
+            btn.disabled = true;
+            return;
+        }
+
+        if (!rawSerial.trim()) {
             errorText.style.display = 'none';
             validText.style.display = 'none';
             btn.disabled = false;
-            return false;
+            return;
         }
 
-        // ตรวจเช็กที่ 1: ตรวจสอบว่าอยู่ใน 291 รายการหรือไม่
+        // 1. ตรวจสอบว่าอยู่ในรายการอนุญาตหรือไม่
         if (!isSerialAllowed(rawSerial)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
-            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ 'ไม่มีในระบบ 291 รายการ' กรุณาตรวจสอบอีกครั้ง";
+            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ 'ไม่มีในรายการ 291 เครื่อง' กรุณาตรวจสอบอีกครั้ง";
             btn.disabled = true;
-            return true;
+            return;
         }
 
-        // ตรวจเช็กที่ 2: ห้ามซ้ำในรอบ 365 วัน
+        // 2. ตรวจสอบห้ามซ้ำในรอบ 365 วัน
         if (isDuplicateSerial(rawSerial, inputDateStr)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
             errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ เพิ่งถูกใช้งานไปไม่ถึง 1 ปี (365 วัน)! ไม่สามารถเบิกซ้ำได้";
             btn.disabled = true;
-            return true;
+            return;
         }
 
         errorText.style.display = 'none';
         validText.style.display = 'block';
         validText.innerText = "✅ หมายเลขครุภัณฑ์ถูกต้อง และสามารถส่งเบิกได้";
         btn.disabled = false;
-        return false;
     }
 
     function switchTab(tabId) {
@@ -226,10 +244,10 @@
         if(!name) { alert("กรุณาเลือกชื่อของคุณก่อนส่งข้อมูล"); return; }
         if(!repairNo) { alert("กรุณากรอกเลขที่ใบส่งซ่อม"); return; }
         if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
-        if(!serial) { alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อบันทึกประวัติการเบิกจ่าย"); return; }
+        if(!serial) { alert("⚠️ กรุณากรอกหมายเลขครุภัณฑ์"); return; }
 
         if (!isSerialAllowed(serial)) {
-            alert("❌ หมายเลขครุภัณฑ์ไม่ถูกต้อง (ไม่อยู่ในรายการ 291 เครื่อง)");
+            alert("❌ หมายเลขครุภัณฑ์ไม่ถูกต้อง (ไม่อยู่ในรายการที่อนุญาต)");
             validateSerialInput();
             return;
         }
