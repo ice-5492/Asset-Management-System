@@ -87,7 +87,7 @@
         </div>
 
         <div class="form-group">
-            <label>🆔 คีย์หมายเลขครุภัณฑ์ (ระบบควบคุมตรวจสอบเลขซ้ำซ้อน 291 เครื่องอัตโนมัติ):</label>
+            <label>🆔 คีย์หมายเลขครุภัณฑ์ (เฉพาะ 291 รายการที่ถูกต้องเท่านั้น):</label>
             <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์" oninput="validateSerialInput()">
             <div id="serialError" class="error-text"></div>
             <div id="serialValid" class="valid-text"></div>
@@ -111,10 +111,10 @@
 </div>
 
 <script>
-    // URL Web App ล่าสุดจาก Google Apps Script
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby39MjB5-6t_mamKhXA1WbNV35SlKKMLLR8mKx0vVgky4oTXCWkYwBSS2_NozTPdzEAdA/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlGT4NpnUTmaMBBY91z94VlTdDOc0UvUb7k5kSBe6tYs917WcxgViUgnmw3Jg1kqy5mQ/exec";
     
-    let historyRecords = [];     
+    let historyRecords = [];
+    let allowedSerialsClean = []; 
 
     document.getElementById('inputDate').valueAsDate = new Date();
     fetchDatabase();
@@ -124,6 +124,9 @@
         .then(res => res.json())
         .then(data => {
             historyRecords = data.history || [];
+            if (data.allowedSerials && Array.isArray(data.allowedSerials)) {
+                allowedSerialsClean = data.allowedSerials.map(s => cleanSerial(s));
+            }
             validateSerialInput();
         })
         .catch(err => console.error("Error fetching database: ", err));
@@ -132,6 +135,12 @@
     function cleanSerial(val) {
         if (!val) return "";
         return String(val).trim().toLowerCase().replace(/[\s\-_]/g, '');
+    }
+
+    function isSerialAllowed(rawSerial) {
+        if (allowedSerialsClean.length === 0) return true;
+        const inputClean = cleanSerial(rawSerial);
+        return allowedSerialsClean.includes(inputClean);
     }
 
     function isDuplicateSerial(rawSerial, inputDateStr) {
@@ -168,19 +177,29 @@
             return false;
         }
 
+        // ตรวจเช็กที่ 1: ตรวจสอบว่าอยู่ใน 291 รายการหรือไม่
+        if (!isSerialAllowed(rawSerial)) {
+            errorText.style.display = 'block';
+            validText.style.display = 'none';
+            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ 'ไม่มีในระบบ 291 รายการ' กรุณาตรวจสอบอีกครั้ง";
+            btn.disabled = true;
+            return true;
+        }
+
+        // ตรวจเช็กที่ 2: ห้ามซ้ำในรอบ 365 วัน
         if (isDuplicateSerial(rawSerial, inputDateStr)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
             errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ เพิ่งถูกใช้งานไปไม่ถึง 1 ปี (365 วัน)! ไม่สามารถเบิกซ้ำได้";
             btn.disabled = true;
             return true;
-        } else {
-            errorText.style.display = 'none';
-            validText.style.display = 'block';
-            validText.innerText = "✅ หมายเลขครุภัณฑ์ถูกต้อง สามารถส่งเบิกได้";
-            btn.disabled = false;
-            return false;
         }
+
+        errorText.style.display = 'none';
+        validText.style.display = 'block';
+        validText.innerText = "✅ หมายเลขครุภัณฑ์ถูกต้อง และสามารถส่งเบิกได้";
+        btn.disabled = false;
+        return false;
     }
 
     function switchTab(tabId) {
@@ -208,6 +227,12 @@
         if(!repairNo) { alert("กรุณากรอกเลขที่ใบส่งซ่อม"); return; }
         if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
         if(!serial) { alert("⚠️ ระบบต้องการ 'หมายเลขครุภัณฑ์' เพื่อบันทึกประวัติการเบิกจ่าย"); return; }
+
+        if (!isSerialAllowed(serial)) {
+            alert("❌ หมายเลขครุภัณฑ์ไม่ถูกต้อง (ไม่อยู่ในรายการ 291 เครื่อง)");
+            validateSerialInput();
+            return;
+        }
 
         if (isDuplicateSerial(serial, date)) {
             alert("❌ ไม่สามารถส่งข้อมูลได้: หมายเลขครุภัณฑ์นี้ถูกใช้งานไปแล้วในรอบ 1 ปี");
