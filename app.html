@@ -88,7 +88,7 @@
         </div>
 
         <div class="form-group">
-            <label>🆔 คีย์หมายเลขครุภัณฑ์ (ต้องเป็นเลขที่มีในระบบเท่านั้น):</label>
+            <label>🆔 คีย์หมายเลขครุภัณฑ์ (เฉพาะรายการที่อนุญาตเท่านั้น):</label>
             <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์" oninput="validateSerialInput()">
             <div id="loadingStatus" class="info-text">⏳ กำลังโหลดรายการครุภัณฑ์จากระบบ...</div>
             <div id="serialError" class="error-text"></div>
@@ -97,7 +97,7 @@
 
         <div class="form-group">
             <label>🔢 จำนวนที่ต้องใช้ (เครื่อง/ชิ้น):</label>
-            <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1" value="1" readonly>
+            <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1" value="1">
         </div>
         <button class="btn-main" id="btnSubmit" onclick="saveDataOnline()" disabled>ส่งข้อมูลเข้าสู่ระบบกลาง</button>
         <p id="saveMsg" style="text-align: center; font-weight: bold; display: none;"></p>
@@ -150,14 +150,13 @@
         return String(val).trim().toLowerCase().replace(/[\s\-_()]/g, '');
     }
 
-    // เงื่อนไขที่ 2: ต้องเป็นเลขที่มีอยู่ในฐานข้อมูลเท่านั้น
     function isSerialAllowed(rawSerial) {
         if (!isLoaded || allowedSerialsClean.length === 0) return false;
         const inputClean = cleanText(rawSerial);
         return allowedSerialsClean.includes(inputClean);
     }
 
-    // เงื่อนไขที่ 1: ตรวจสอบการซื้อ/เบิกซ้ำสำหรับ "รายการนี้" + "เลขครุภัณฑ์นี้" ในรอบ 365 วัน (1 ต่อ 1)
+    // แก้ไขจุดนี้: ตรวจสอบซ้ำเฉพาะกรณี "เลขครุภัณฑ์เดิม" + "รายการวัสดุเดียวกัน" ในรอบ 365 วัน
     function isDuplicateItemForSerial(rawSerial, selectedItem, inputDateStr) {
         const serialInput = cleanText(rawSerial);
         const itemInput = cleanText(selectedItem);
@@ -171,7 +170,7 @@
             const dbSerial = cleanText(record.serial);
             const dbItem = cleanText(record.item);
 
-            // ต้องตรงกันทั้ง "เลขครุภัณฑ์" และ "รายการวัสดุ"
+            // เงื่อนไข: เลขครุภัณฑ์ตรงกัน AND รายการสินค้าที่เลือกตรงกัน
             if (dbSerial === serialInput && dbItem === itemInput) {
                 const dbDateObj = new Date(record.date);
                 if (isNaN(dbDateObj.getTime())) return false;
@@ -179,7 +178,7 @@
                 const diffTime = Math.abs(inputDateObj - dbDateObj);
                 const diffDays = diffTime / (1000 * 60 * 60 * 24);
                 
-                // หากห่างกันไม่ถึง 365 วันถือว่าซ้ำ
+                // ถ้ารายการเดียวกัน เบิกซ้ำให้เลขเดิมก่อน 365 วัน ให้แจ้งเตือนซ้ำ
                 return diffDays < 365;
             }
             return false;
@@ -202,31 +201,31 @@
         if (!rawSerial.trim()) {
             errorText.style.display = 'none';
             validText.style.display = 'none';
-            btn.disabled = true;
+            btn.disabled = false;
             return;
         }
 
-        // 1. ตรวจสอบว่าต้องมีเลขครุภัณฑ์อยู่ในระบบจริงเท่านั้น
+        // 1. ตรวจสอบว่าอยู่ในรายการอนุญาตหรือไม่
         if (!isSerialAllowed(rawSerial)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
-            errorText.innerText = "❌ ไม่พบเลขครุภัณฑ์นี้ในระบบ (กรุณากรอกเฉพาะเลขที่มีอยู่จริง)";
+            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ 'ไม่มีในรายการ 291 เครื่อง' กรุณาตรวจสอบอีกครั้ง";
             btn.disabled = true;
             return;
         }
 
-        // 2. ตรวจสอบเงื่อนไขห้ามเบิกรายการเดิมซ้ำกับเลขครุภัณฑ์นี้ในรอบ 1 ปี (365 วัน)
+        // 2. ตรวจสอบว่ารายการวัสดุนี้ถูกเบิกให้เลขครุภัณฑ์นี้ไปแล้วหรือยังในรอบ 365 วัน
         if (isDuplicateItemForSerial(rawSerial, selectedItem, inputDateStr)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
-            errorText.innerText = "❌ เลขครุภัณฑ์นี้เคยเบิกรายการวัสดุดังกล่าวไปแล้วในรอบ 1 ปี! (ห้ามซื้อ/เบิกซ้ำ)";
+            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ เคยเบิก 'รายการวัสดุนี้' ไปแล้วในรอบ 1 ปี! (ห้ามซื้อซ้ำ)";
             btn.disabled = true;
             return;
         }
 
         errorText.style.display = 'none';
         validText.style.display = 'block';
-        validText.innerText = "✅ เลขครุภัณฑ์ถูกต้อง และสามารถบันทึกรายการได้";
+        validText.innerText = "✅ หมายเลขครุภัณฑ์ถูกต้อง และสามารถส่งเบิกรายการนี้ได้";
         btn.disabled = false;
     }
 
@@ -263,7 +262,7 @@
         }
 
         if (isDuplicateItemForSerial(serial, item, date)) {
-            alert("❌ ไม่สามารถส่งข้อมูลได้: รายการวัสดุสำหรับเลขครุภัณฑ์นี้ถูกใช้งานไปแล้วในรอบ 1 ปี");
+            alert("❌ ไม่สามารถส่งข้อมูลได้: หมายเลขครุภัณฑ์นี้เคยเบิกรายการวัสดุดังกล่าวไปแล้วในรอบ 1 ปี");
             validateSerialInput();
             return;
         }
@@ -285,7 +284,7 @@
             document.getElementById('inputRepairNo').value = '';
             document.getElementById('inputSerial').value = '';
             document.getElementById('serialValid').style.display = 'none';
-            btn.disabled = true;
+            btn.disabled = false;
             fetchDatabase();
             setTimeout(() => msg.style.display = 'none', 3000);
         }).catch(err => {
@@ -305,7 +304,7 @@
             return;
         }
 
-        let html = `<h3 style="text-align:center;">ยอดรวมเบิกสะสมทั้งหมด: <span style="color:#005088">${grandTotal} ชิ้น</span></h3>`;
+        let html = `<h3 style="text-align:center;">ยอดรวมเบิกสะสมทั้งหมด: <span style="color:#005088">${grandTotal} เครื่อง</span></h3>`;
         html += `<h4>📦 รายละเอียดการเบิกรายเครื่องล่าสุด:</h4>`;
         
         historyRecords.forEach(d => {
