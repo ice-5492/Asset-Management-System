@@ -3,331 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการวัสดุแพทย์ออนไลน์ & Dashboard</title>
+    <title>ระบบบันทึกการเบิกอะไหล่/อุปกรณ์</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .app-container { max-width: 950px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; }
-        .tabs { display: flex; background: #005088; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .tab-btn.active { background: #11CAA0; color: #000; }
-        .content { padding: 30px; display: none; }
-        .content.active { display: block; }
-        h2 { color: #005088; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn-main { width: 100%; padding: 15px; background: #005088; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
-        .btn-main:hover { background: #003d66; }
-        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
-        .dashboard-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
-        .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #ddd; }
-        .stat-name { flex: 1; color: #333; }
-        .stat-value { font-weight: bold; color: #11CAA0; font-size: 18px; width: 100px; text-align: right; }
-        .loading { text-align: center; color: #666; font-style: italic; }
-        .error-text { color: red; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
-        .valid-text { color: green; font-size: 14px; margin-top: 5px; display: none; font-weight: bold; }
-        .info-text { color: #005088; font-size: 14px; margin-top: 5px; font-weight: bold; }
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f3f4f6;
+        }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen pb-10">
 
-<div class="app-container">
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('record')">📝 บันทึกการใช้ของ (User)</button>
-        <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard สรุปผล (Admin)</button>
-    </div>
-
-    <!-- หน้าบันทึกข้อมูล -->
-    <div id="record" class="content active">
-        <h2>บันทึกความต้องการวัสดุ</h2>
-        <div class="form-group">
-            <label>👤 เลือกชื่อผู้ต้องการสินค้า / ผู้บันทึก:</label>
-            <select id="inputName">
-                <option value="" disabled selected>--- กรุณาเลือกชื่อของคุณ ---</option>
-                <option value="นายไกรพล ภักดีภูวนารถ">1. นายไกรพล ภักดีภูวนารถ</option>
-                <option value="นายณัฐฎ์วัฒน์ นิ่มพานิชย์">2. นายณัฐฎ์วัฒน์ นิ่มพานิชย์</option>
-                <option value="นายพิวา ราชเพียแก้ว">3. นายพิวา ราชเพียแก้ว</option>
-                <option value="นายยศพนธ์ คันธนู">4. นายยศพนธ์ คันธนู</option>
-                <option value="นายปัญญา สมตระกูล">5. นายปัญญา สมตระกูล</option>
-                <option value="นายภาณุวิชญ์ หนูเทศ">6. นายภาณุวิชญ์ หนูเทศ</option>
-                <option value="นายธีธัช เล็กอุทัย">7. นายธีธัช เล็กอุทัย</option>
-            </select>
+    <!-- Navbar Header -->
+    <header class="bg-blue-600 text-white shadow-lg mb-6">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-boxes-packing"></i>
+                ระบบบันทึกการเบิกอะไหล่ / อุปกรณ์
+            </h1>
         </div>
+    </header>
 
-        <div class="form-group">
-            <label>🛠️ เลขที่ใบส่งซ่อม:</label>
-            <input type="text" id="inputRepairNo" placeholder="กรุณากรอกเลขที่ใบส่งซ่อม">
-        </div>
+    <main class="max-w-5xl mx-auto px-4 space-y-6">
 
-        <div class="form-group">
-            <label>📅 เลือกวันที่ต้องการใช้ (ปฏิทิน):</label>
-            <input type="date" id="inputDate" onchange="validateSerialInput()">
-        </div>
+        <!-- ฟอร์มบันทึกข้อมูล -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                แบบฟอร์มบันทึกการเบิก
+            </h2>
 
-        <div class="form-group">
-            <label>📦 เลือกรายการวัสดุ (17 รายการล่าสุด):</label>
-            <select id="inputItem" onchange="validateSerialInput()">
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN, Mindray)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN, Mindray)</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 7-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบหนีบนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS, Philips Goldway)</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN (สำหรับเครื่อง ยี่ห้อ Philips, Philips Goldway)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ PHILIPS)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 6-PIN (สำหรับเครื่อง ยี่ห้อ EDAN)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 6-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Mindray)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN (สำหรับเครื่อง ยี่ห้อ Philips Goldway)</option>
-                <option value="สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดความเข้มข้นของออกซิเจนในเลือด (SpO2 Sensor) แบบสวมนิ้ว 8-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (3 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบกระดุม 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
-                <option value="สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)">สายวัดคลื่นไฟฟ้าหัวใจ (5 Lead ECG Cable) แบบหนีบ 12-PIN สายแท้ (สำหรับเครื่อง ยี่ห้อ Philips)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>🆔 คีย์หมายเลขครุภัณฑ์ (เฉพาะรายการที่อนุญาตเท่านั้น):</label>
-            <input type="text" id="inputSerial" placeholder="กรุณากรอกหมายเลขครุภัณฑ์" oninput="validateSerialInput()">
-            <div id="loadingStatus" class="info-text">⏳ กำลังโหลดรายการครุภัณฑ์จากระบบ...</div>
-            <div id="serialError" class="error-text"></div>
-            <div id="serialValid" class="valid-text"></div>
-        </div>
-
-        <div class="form-group">
-            <label>🔢 จำนวนที่ต้องใช้ (เครื่อง/ชิ้น):</label>
-            <input type="number" id="inputQty" placeholder="ระบุจำนวน" min="1" value="1">
-        </div>
-        <button class="btn-main" id="btnSubmit" onclick="saveDataOnline()" disabled>ส่งข้อมูลเข้าสู่ระบบกลาง</button>
-        <p id="saveMsg" style="text-align: center; font-weight: bold; display: none;"></p>
-    </div>
-
-    <!-- หน้า Dashboard -->
-    <div id="dashboard" class="content">
-        <h2>Dashboard สรุปยอดรวมออนไลน์</h2>
-        <div id="dashboardResult" class="dashboard-card">
-            <p style="text-align: center; color: #888;">กำลังโหลดฐานข้อมูลกลาง...</p>
-        </div>
-    </div>
-</div>
-
-<script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlGT4NpnUTmaMBBY91z94VlTdDOc0UvUb7k5kSBe6tYs917WcxgViUgnmw3Jg1kqy5mQ/exec";
-    
-    let historyRecords = [];
-    let allowedSerialsClean = []; 
-    let isLoaded = false;
-
-    document.getElementById('inputDate').valueAsDate = new Date();
-    fetchDatabase();
-
-    function fetchDatabase() {
-        const loadingStatus = document.getElementById('loadingStatus');
-        loadingStatus.style.display = 'block';
-        loadingStatus.innerText = "⏳ กำลังดึงข้อมูลรายการครุภัณฑ์จากระบบ...";
-
-        fetch(GOOGLE_SCRIPT_URL)
-        .then(res => res.json())
-        .then(data => {
-            historyRecords = data.history || [];
-            if (data.allowedSerials && Array.isArray(data.allowedSerials)) {
-                allowedSerialsClean = data.allowedSerials.map(s => cleanText(s));
-            }
-            isLoaded = true;
-            loadingStatus.style.display = 'none';
-            validateSerialInput();
-        })
-        .catch(err => {
-            console.error("Error fetching database: ", err);
-            loadingStatus.innerText = "❌ เกิดข้อผิดพลาดในการโหลดรายการครุภัณฑ์ กรุณารีเฟรชหน้าเว็บ";
-            loadingStatus.style.color = "red";
-        });
-    }
-
-    function cleanText(val) {
-        if (!val) return "";
-        return String(val).trim().toLowerCase().replace(/[\s\-_()]/g, '');
-    }
-
-    function isSerialAllowed(rawSerial) {
-        if (!isLoaded || allowedSerialsClean.length === 0) return false;
-        const inputClean = cleanText(rawSerial);
-        return allowedSerialsClean.includes(inputClean);
-    }
-
-    function isDuplicateItemForSerial(rawSerial, selectedItem, inputDateStr) {
-        const serialInput = cleanText(rawSerial);
-        const itemInput = cleanText(selectedItem);
-        if (!serialInput || !itemInput || !inputDateStr) return false;
-
-        const inputDateObj = new Date(inputDateStr);
-
-        return historyRecords.some(record => {
-            if (!record.serial || !record.item || !record.date) return false;
-            
-            const dbSerial = cleanText(record.serial);
-            const dbItem = cleanText(record.item);
-
-            if (dbSerial === serialInput && dbItem === itemInput) {
-                const dbDateObj = new Date(record.date);
-                if (isNaN(dbDateObj.getTime())) return false;
-
-                const diffTime = Math.abs(inputDateObj - dbDateObj);
-                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            <form id="recordForm" onsubmit="submitForm(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
-                return diffDays < 365;
-            }
-            return false;
-        });
-    }
-
-    function validateSerialInput() {
-        const rawSerial = document.getElementById('inputSerial').value;
-        const selectedItem = document.getElementById('inputItem').value;
-        const inputDateStr = document.getElementById('inputDate').value;
-        const errorText = document.getElementById('serialError');
-        const validText = document.getElementById('serialValid');
-        const btn = document.getElementById('btnSubmit');
-
-        if (!isLoaded) {
-            btn.disabled = true;
-            return;
-        }
-
-        if (!rawSerial.trim()) {
-            errorText.style.display = 'none';
-            validText.style.display = 'none';
-            btn.disabled = false;
-            return;
-        }
-
-        if (!isSerialAllowed(rawSerial)) {
-            errorText.style.display = 'block';
-            validText.style.display = 'none';
-            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ 'ไม่มีในรายการ 291 เครื่อง' กรุณาตรวจสอบอีกครั้ง";
-            btn.disabled = true;
-            return;
-        }
-
-        if (isDuplicateItemForSerial(rawSerial, selectedItem, inputDateStr)) {
-            errorText.style.display = 'block';
-            validText.style.display = 'none';
-            errorText.innerText = "❌ หมายเลขครุภัณฑ์นี้ เคยเบิก 'รายการวัสดุนี้' ไปแล้วในรอบ 1 ปี! (ห้ามซื้อซ้ำ)";
-            btn.disabled = true;
-            return;
-        }
-
-        errorText.style.display = 'none';
-        validText.style.display = 'block';
-        validText.innerText = "✅ หมายเลขครุภัณฑ์ถูกต้อง และสามารถส่งเบิกรายการนี้ได้";
-        btn.disabled = false;
-    }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if (window.event && window.event.currentTarget) {
-            window.event.currentTarget.classList.add('active');
-        }
-        if(tabId === 'dashboard') loadDashboardOnline();
-    }
-
-    // --- ปรับแก้ฟังก์ชัน saveDataOnline ใหม่ทั้งหมดที่จุดนี้ ---
-    function saveDataOnline() {
-        const nameSelect = document.getElementById('inputName');
-        const name = nameSelect.value;
-        const repairNo = document.getElementById('inputRepairNo').value.trim();
-        const date = document.getElementById('inputDate').value;
-        const item = document.getElementById('inputItem').value;
-        const serial = document.getElementById('inputSerial').value.trim();
-        const qty = parseInt(document.getElementById('inputQty').value);
-        const msg = document.getElementById('saveMsg');
-        const btn = document.getElementById('btnSubmit');
-
-        if(!name) { alert("กรุณาเลือกชื่อของคุณก่อนส่งข้อมูล"); return; }
-        if(!repairNo) { alert("กรุณากรอกเลขที่ใบส่งซ่อม"); return; }
-        if(!date || !qty) { alert("กรุณากรอกข้อมูลวันที่และจำนวนให้ครบถ้วน"); return; }
-        if(!serial) { alert("⚠️ กรุณากรอกหมายเลขครุภัณฑ์"); return; }
-
-        if (!isSerialAllowed(serial)) {
-            alert("❌ หมายเลขครุภัณฑ์ไม่ถูกต้อง (ไม่อยู่ในรายการที่อนุญาต)");
-            validateSerialInput();
-            return;
-        }
-
-        if (isDuplicateItemForSerial(serial, item, date)) {
-            alert("❌ ไม่สามารถส่งข้อมูลได้: หมายเลขครุภัณฑ์นี้เคยเบิกรายการวัสดุดังกล่าวไปแล้วในรอบ 1 ปี");
-            validateSerialInput();
-            return;
-        }
-
-        btn.disabled = true;
-        msg.style.display = 'block';
-        msg.style.color = '#005088';
-        msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
-
-        // สร้าง Payload แบบ Form URL Encoded
-        const payload = new URLSearchParams();
-        payload.append('name', name);
-        payload.append('repairNo', repairNo);
-        payload.append('date', date);
-        payload.append('item', item);
-        payload.append('qty', qty);
-        payload.append('serial', serial);
-
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            body: payload
-        })
-        .then(res => res.json())
-        .then(data => {
-            msg.style.color = 'green';
-            msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
-            document.getElementById('inputRepairNo').value = '';
-            document.getElementById('inputSerial').value = '';
-            document.getElementById('serialValid').style.display = 'none';
-            btn.disabled = false;
-            fetchDatabase(); // โหลดข้อมูลใหม่เข้าสู่ความจำ
-            setTimeout(() => msg.style.display = 'none', 3000);
-        })
-        .catch(err => {
-            console.error("Save Error:", err);
-            msg.style.color = 'red';
-            msg.innerText = "❌ เกิดข้อผิดพลาดในการส่งข้อมูล";
-            btn.disabled = false;
-        });
-    }
-
-    function loadDashboardOnline() {
-        const resultArea = document.getElementById('dashboardResult');
-        resultArea.innerHTML = '<p class="loading">🔄 กำลังประมวลผลข้อมูลล่าสุด...</p>';
-        
-        let grandTotal = historyRecords.reduce((acc, cur) => acc + (parseInt(cur.qty) || 0), 0);
-        if(historyRecords.length === 0) {
-            resultArea.innerHTML = `<p style="text-align: center; color: #888;">❌ ยังไม่มีข้อมูลการบันทึกในระบบ</p>`;
-            return;
-        }
-
-        let html = `<h3 style="text-align:center;">ยอดรวมเบิกสะสมทั้งหมด: <span style="color:#005088">${grandTotal} เครื่อง</span></h3>`;
-        html += `<h4>📦 รายละเอียดการเบิกรายเครื่องล่าสุด:</h4>`;
-        
-        historyRecords.forEach(d => {
-            const displayRepair = d.repairNo ? ` | 🛠️ ใบส่งซ่อม: <b>${d.repairNo}</b>` : '';
-            const displaySerial = d.rawSerial || d.serial;
-            html += `
-                <div class="stat-item">
-                    <div class="stat-name">📅 ${d.date}${displayRepair} | 🆔 ครุภัณฑ์: <b>${displaySerial}</b> <br> <span style="font-size:13px; color:#666;">${d.item} (โดย ${d.name})</span></div>
-                    <div class="stat-value">${d.qty} ชิ้น</div>
+                <!-- 1. วันที่ -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        วันที่ทำรายการ <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="date" required 
+                           class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
-            `;
+
+                <!-- 2. ชื่อช่างผู้เบิก -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        ชื่อช่างผู้เบิก <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" placeholder="เช่น นายภาณุวิชญ์ หนูเทศ" required 
+                           class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- 3. รายการอุปกรณ์ -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        รายการอุปกรณ์ / อะไหล่ <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="item" placeholder="ระบุชื่อสายหรืออุปกรณ์" required 
+                           class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- 4. หมายเลขครุภัณฑ์ (รองรับ Autocomplete จาก AllowedSerials) -->
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        หมายเลขครุภัณฑ์ <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="serial" placeholder="เช่น 6695-033-213" required autocomplete="off"
+                           oninput="onSerialInput(this.value)"
+                           class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    
+                    <!-- Dropdown เสนอแนะครุภัณฑ์ -->
+                    <div id="serialSuggestions" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto mt-1"></div>
+                </div>
+
+                <!-- 5. จำนวน -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        จำนวน <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="qty" value="1" min="1" required 
+                           class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- 6. เลขที่ใบส่งซ่อม -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        เลขที่ใบส่งซ่อม
+                    </label>
+                    <input type="text" id="repairNo" placeholder="เช่น 32210/2569" 
+                           class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- ปุ่มส่งข้อมูล -->
+                <div class="md:col-span-2 mt-2">
+                    <button type="submit" id="submitBtn" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow transition duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ตารางประวัติการเบิกล่าสุด -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b pb-3">
+                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-600"></i>
+                    ประวัติการเบิกอุปกรณ์ล่าสุด
+                </h2>
+                <!-- ช่องค้นหาในตาราง -->
+                <div class="relative w-full md:w-64">
+                    <input type="text" id="searchTable" onkeyup="filterTable()" placeholder="ค้นหาครุภัณฑ์/รายการ..." 
+                           class="w-full border border-gray-300 rounded-md pl-9 pr-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+                </div>
+            </div>
+
+            <!-- โหลดดิ้งสถานะ -->
+            <div id="loadingState" class="text-center py-8 text-gray-500">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600 mb-2"></i>
+                <p>กำลังโหลดข้อมูลประวัติ...</p>
+            </div>
+
+            <!-- ตารางแสดงรายการ -->
+            <div class="overflow-x-auto">
+                <table id="historyTable" class="hidden w-full text-left border-collapse min-w-[650px]">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 text-sm border-b">
+                            <th class="p-3">วันที่</th>
+                            <th class="p-3">รายการ</th>
+                            <th class="p-3">หมายเลขครุภัณฑ์</th>
+                            <th class="p-3 text-center">จำนวน</th>
+                            <th class="p-3">ชื่อช่าง</th>
+                            <th class="p-3">เลขที่ใบส่งซ่อม</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTbody" class="divide-y divide-gray-200 text-sm">
+                        <!-- รายการประวัติจะถูกสร้างผ่าน JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Web App URL จาก Google Apps Script ของคุณ
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVGfjwAEltKEiTFwIPHQTGCWic82Ujj3vfkmYkGHHHa_fdddO2kJMONgLSPnqNN1Ornw/exec";
+
+        let allowedSerialsList = [];
+        let globalHistoryData = [];
+
+        // ตั้งค่าวันที่ปัจจุบันเป็น default
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("date").value = today;
+            loadData();
         });
-        resultArea.innerHTML = html;
-    }
-</script>
+
+        // ฟังก์ชันล้างอักขระพิเศษสำหรับเปรียบเทียบ Serial
+        function cleanStr(val) {
+            return String(val || "").trim().toLowerCase().replace(/[\s\-_()]/g, '');
+        }
+
+        // 1. โหลดข้อมูลจาก Google Apps Script
+        async function loadData() {
+            const loading = document.getElementById("loadingState");
+            const table = document.getElementById("historyTable");
+            
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                
+                allowedSerialsList = data.allowedSerials || [];
+                globalHistoryData = data.history || [];
+
+                renderTable(globalHistoryData);
+
+                loading.classList.add("hidden");
+                table.classList.remove("hidden");
+            } catch (err) {
+                console.error(err);
+                loading.innerHTML = `<p class="text-red-500"><i class="fa-solid fa-triangle-exclamation"></i> ไม่สามารถโหลดข้อมูลได้ โปรดลองอีกครั้ง</p>`;
+            }
+        }
+
+        // Render ตารางข้อมูล
+        function renderTable(dataItems) {
+            const tbody = document.getElementById("historyTbody");
+            tbody.innerHTML = "";
+
+            if (dataItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400">ยังไม่มีประวัติการเบิก</td></tr>`;
+                return;
+            }
+
+            // แสดงรายการล่าสุดขึ้นก่อน
+            const reversedData = [...dataItems].reverse();
+
+            reversedData.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-600 font-medium">${row.date || '-'}</td>
+                    <td class="p-3 text-gray-800">${row.item || '-'}</td>
+                    <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-semibold">${row.serial || '-'}</span></td>
+                    <td class="p-3 text-center">${row.qty || '1'}</td>
+                    <td class="p-3 text-gray-700">${row.name || '-'}</td>
+                    <td class="p-3 text-gray-500">${row.repairNo || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ระบบค้นหาในตาราง
+        function filterTable() {
+            const keyword = document.getElementById("searchTable").value.toLowerCase();
+            const filtered = globalHistoryData.filter(item => {
+                return (item.item && item.item.toLowerCase().includes(keyword)) ||
+                       (item.serial && item.serial.toLowerCase().includes(keyword)) ||
+                       (item.name && item.name.toLowerCase().includes(keyword)) ||
+                       (item.repairNo && item.repairNo.toLowerCase().includes(keyword));
+            });
+            renderTable(filtered);
+        }
+
+        // 2. ระบบ Autocomplete ช่องค้นหาครุภัณฑ์
+        function onSerialInput(val) {
+            const suggestionsEl = document.getElementById("serialSuggestions");
+            const cleanVal = cleanStr(val);
+
+            if (!cleanVal || allowedSerialsList.length === 0) {
+                suggestionsEl.innerHTML = "";
+                suggestionsEl.classList.add("hidden");
+                return;
+            }
+
+            const matches = allowedSerialsList.filter(s => cleanStr(s).includes(cleanVal)).slice(0, 10);
+
+            if (matches.length === 0) {
+                suggestionsEl.innerHTML = "";
+                suggestionsEl.classList.add("hidden");
+                return;
+            }
+
+            suggestionsEl.innerHTML = matches.map(s => `
+                <div onclick="selectSerial('${s}')" class="p-2 hover:bg-blue-50 cursor-pointer text-sm text-gray-700 border-b border-gray-100">
+                    ${s}
+                </div>
+            `).join('');
+
+            suggestionsEl.classList.remove("hidden");
+        }
+
+        function selectSerial(val) {
+            document.getElementById("serial").value = val;
+            document.getElementById("serialSuggestions").classList.add("hidden");
+        }
+
+        // ปิด Autocomplete เมื่อคลิกนอกพื้นที่
+        document.addEventListener("click", (e) => {
+            const suggestionsEl = document.getElementById("serialSuggestions");
+            if (!e.target.closest("#serial") && !e.target.closest("#serialSuggestions")) {
+                suggestionsEl.classList.add("hidden");
+            }
+        });
+
+        // 3. ฟังก์ชันบันทึกข้อมูล (Submit Form)
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById("submitBtn");
+            const dateVal = document.getElementById("date").value;
+            const nameVal = document.getElementById("name").value.trim();
+            const itemVal = document.getElementById("item").value.trim();
+            const serialVal = document.getElementById("serial").value.trim();
+            const qtyVal = document.getElementById("qty").value;
+            const repairNoVal = document.getElementById("repairNo").value.trim();
+
+            const inputSerialClean = cleanStr(serialVal);
+
+            // ตรวจสอบความถูกต้องเบื้องต้นก่อนส่ง (Frontend Validation)
+            if (allowedSerialsList.length > 0) {
+                const isAllowed = allowedSerialsList.some(s => cleanStr(s) === inputSerialClean);
+                if (!isAllowed) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'หมายเลขครุภัณฑ์ไม่ถูกต้อง',
+                        text: 'หมายเลขครุภัณฑ์นี้ไม่ได้อยู่ในรายการที่ได้รับอนุญาต (291 เครื่อง)',
+                        confirmButtonColor: '#2563eb'
+                    });
+                    return;
+                }
+            }
+
+            // แสดงสถานะกำลังบันทึก
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...`;
+
+            try {
+                // ส่งข้อมูลในรูปแบบ URL Search Params เพื่อป้องกันติด CORS ของ Apps Script
+                const formData = new URLSearchParams();
+                formData.append("date", dateVal);
+                formData.append("name", nameVal);
+                formData.append("item", itemVal);
+                formData.append("serial", serialVal);
+                formData.append("qty", qtyVal);
+                formData.append("repairNo", repairNoVal);
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData.toString()
+                });
+
+                const result = await response.json();
+
+                if (result.result === "success") {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        text: 'บันทึกข้อมูลการเบิกเรียบร้อยแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // ล้างฟอร์ม
+                    document.getElementById("item").value = "";
+                    document.getElementById("serial").value = "";
+                    document.getElementById("qty").value = "1";
+                    document.getElementById("repairNo").value = "";
+
+                    // รีโหลดตาราง
+                    loadData();
+                } else if (result.message && result.message.includes("Duplicate serial within 365 days")) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่สามารถเบิกได้',
+                        text: 'หมายเลขครุภัณฑ์นี้เคยถูกเบิกไปแล้วภายใน 365 วันที่ผ่านมา',
+                        confirmButtonColor: '#2563eb'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: result.message || 'ไม่สามารถบันทึกข้อมูลได้',
+                        confirmButtonColor: '#2563eb'
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เชื่อมต่อล้มเหลว',
+                    text: 'เกิดปัญหาในการเชื่อมต่อกับเซิร์ฟเวอร์ โปรดลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#2563eb'
+                });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> บันทึกข้อมูล`;
+            }
+        }
+    </script>
 </body>
 </html>
-ต้องการให้ช่วยเช็กโค้ดใน Google Apps Script ด้วยไหมครับ?
-
-ใช่
