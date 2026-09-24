@@ -156,7 +156,6 @@
         return allowedSerialsClean.includes(inputClean);
     }
 
-    // แก้ไขจุดนี้: ตรวจสอบซ้ำเฉพาะกรณี "เลขครุภัณฑ์เดิม" + "รายการวัสดุเดียวกัน" ในรอบ 365 วัน
     function isDuplicateItemForSerial(rawSerial, selectedItem, inputDateStr) {
         const serialInput = cleanText(rawSerial);
         const itemInput = cleanText(selectedItem);
@@ -170,7 +169,6 @@
             const dbSerial = cleanText(record.serial);
             const dbItem = cleanText(record.item);
 
-            // เงื่อนไข: เลขครุภัณฑ์ตรงกัน AND รายการสินค้าที่เลือกตรงกัน
             if (dbSerial === serialInput && dbItem === itemInput) {
                 const dbDateObj = new Date(record.date);
                 if (isNaN(dbDateObj.getTime())) return false;
@@ -178,7 +176,6 @@
                 const diffTime = Math.abs(inputDateObj - dbDateObj);
                 const diffDays = diffTime / (1000 * 60 * 60 * 24);
                 
-                // ถ้ารายการเดียวกัน เบิกซ้ำให้เลขเดิมก่อน 365 วัน ให้แจ้งเตือนซ้ำ
                 return diffDays < 365;
             }
             return false;
@@ -205,7 +202,6 @@
             return;
         }
 
-        // 1. ตรวจสอบว่าอยู่ในรายการอนุญาตหรือไม่
         if (!isSerialAllowed(rawSerial)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
@@ -214,7 +210,6 @@
             return;
         }
 
-        // 2. ตรวจสอบว่ารายการวัสดุนี้ถูกเบิกให้เลขครุภัณฑ์นี้ไปแล้วหรือยังในรอบ 365 วัน
         if (isDuplicateItemForSerial(rawSerial, selectedItem, inputDateStr)) {
             errorText.style.display = 'block';
             validText.style.display = 'none';
@@ -239,6 +234,7 @@
         if(tabId === 'dashboard') loadDashboardOnline();
     }
 
+    // --- ปรับแก้ฟังก์ชัน saveDataOnline ใหม่ทั้งหมดที่จุดนี้ ---
     function saveDataOnline() {
         const nameSelect = document.getElementById('inputName');
         const name = nameSelect.value;
@@ -272,22 +268,32 @@
         msg.style.color = '#005088';
         msg.innerText = "⏳ กำลังส่งข้อมูลไปยังระบบกลาง...";
 
+        // สร้าง Payload แบบ Form URL Encoded
+        const payload = new URLSearchParams();
+        payload.append('name', name);
+        payload.append('repairNo', repairNo);
+        payload.append('date', date);
+        payload.append('item', item);
+        payload.append('qty', qty);
+        payload.append('serial', serial);
+
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
-            cache: 'no-cache',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, repairNo, date, item, qty, serial })
-        }).then(() => {
+            body: payload
+        })
+        .then(res => res.json())
+        .then(data => {
             msg.style.color = 'green';
             msg.innerText = "✅ บันทึกสำเร็จ! ข้อมูลถูกส่งไปที่ระบบกลางแล้ว";
             document.getElementById('inputRepairNo').value = '';
             document.getElementById('inputSerial').value = '';
             document.getElementById('serialValid').style.display = 'none';
             btn.disabled = false;
-            fetchDatabase();
+            fetchDatabase(); // โหลดข้อมูลใหม่เข้าสู่ความจำ
             setTimeout(() => msg.style.display = 'none', 3000);
-        }).catch(err => {
+        })
+        .catch(err => {
+            console.error("Save Error:", err);
             msg.style.color = 'red';
             msg.innerText = "❌ เกิดข้อผิดพลาดในการส่งข้อมูล";
             btn.disabled = false;
@@ -322,3 +328,6 @@
 </script>
 </body>
 </html>
+ต้องการให้ช่วยเช็กโค้ดใน Google Apps Script ด้วยไหมครับ?
+
+ใช่
